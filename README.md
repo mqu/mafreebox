@@ -88,3 +88,26 @@ WiFi : Fonctions permettant de paramétrer le rÃ©seau sans-fil.
 - wifi.mac_filter_del
 - wifi.stations_get
 
+Exemples d'utilisation :
+
+<?php
+
+error_reporting(E_ALL);
+
+require_once('lib/Mafreebox.php');
+
+$freebox = new Mafreebox('http://mafreebox.freebox.fr', 'freebox', 'mon.mdp');
+
+# Listons le contenu du disque dur interne de la Freebox.
+$contenu = $freebox->exec( 'fs.list', array('/Disque dur') );
+
+# ajouter un téléchargement
+$url = '';
+$file = '';
+$freebox->download()->http_add($file, $url));
+
+# rebooter la freebox
+$freebox->system()->reboot();
+
+?>
+
