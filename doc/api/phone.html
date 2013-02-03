@@ -1,0 +1,340 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"></head><body><h1>Téléphonie</h1>
+
+  
+  <p></p><br>
+
+
+
+
+<h2>Méthodes</h2>
+
+<h3><a name="status"><code>phone.status ()</code></a></h3>
+<p>
+ Récupère l'état du matériel et de la ligne téléphonique.
+
+  </p><p></p>
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>.</td></tr>
+    
+      <tr><td class="subfield" colspan="2">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>fxs</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Ligne analogique.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>status</li></ul></td>
+       <td>&nbsp;</td>
+       <td>�&#8240;tat de la ligne.</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>initializing</th>
+    <td>En cours d'initialisation.</td>
+  </tr>
+  
+  <tr class="">
+    <th>working</th>
+    <td>Fonctionnement normal.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>error</th>
+    <td>Problème logiciel ou matériel empêchant la ligne de fonctionner.</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>hook</li></ul></td>
+       <td>&nbsp;</td>
+       <td>�&#8240;tat du combiné téléphonique.</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>onhook</th>
+    <td>Combiné raccroché.</td>
+  </tr>
+  
+  <tr class="">
+    <th>offhook</th>
+    <td>Combiné décroché.</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>is_ringing</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Vrai si le combiné est en train de sonner.</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>dect</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Module DECT</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>pin</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Code PIN du dect, pour l'association de nouveaux satellites.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>is_reg</li></ul></td>
+       <td>&nbsp;</td>
+       <td>�&nbsp;open Vrai si l'association est ouverte.</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>mgcp</li></ul></td>
+       <td>&nbsp;</td>
+       <td>�&#8240;tat de la ligne VOIP.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>status</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>waiting</th>
+    <td>Attend l'activation de la connexion internet, ou d'une configuration valide pour pouvoir se connecter aux serveurs.</td>
+  </tr>
+  
+  <tr class="">
+    <th>connecting</th>
+    <td>En cours de connexion aux serveurs.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>working</th>
+    <td>Fonctionnement normal.</td>
+  </tr>
+  
+  <tr class="">
+    <th>error</th>
+    <td>Une erreur empêche la ligne de fonctionner (serveurs injoignable, mauvaise configuration, ...).</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="fxs_ring"><code>phone.fxs_ring (active)</code></a></h3>
+<p>
+ Active/désactive la sonnerie du combiné de la ligne analogique.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>active</li></ul></td>
+       <td>booléen</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="dect_paging"><code>phone.dect_paging (active)</code></a></h3>
+<p>
+ Active la recherche (sonnerie) de satellites DECT.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>active</li></ul></td>
+       <td>booléen</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="dect_registration_set"><code>phone.dect_registration_set (active)</code></a></h3>
+<p>
+ Active ou désactive l'association de la base DECT de la freebox.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>active</li></ul></td>
+       <td>booléen</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="dect_params_set"><code>phone.dect_params_set (params)</code></a></h3>
+<p>
+ Modifie les réglages d'enregistrement dect DECT
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>params</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="dect_delete"><code>phone.dect_delete (id)</code></a></h3>
+<p>
+ Supprime les associations de tous les satellites de la base DECT de la freebox.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+</body></html>

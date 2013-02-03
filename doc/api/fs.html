@@ -1,0 +1,785 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><h1>Système de fichiers</h1>
+
+  
+  <p> Les opérations sur les fichiers (copie, suppression, ...) se font 
+de manière asynchrone, puisque certaines opérations peuvent prendre 
+beaucoup de temps (grosse copies). Pour ces opérations, un identifiant 
+unique est immédiatement retourné, permettant d'obtenir la progression 
+de  l'opération et d'agir dessus (operation_get, abort, set_password). </p><p>
+ Il est possible de lister toutes les opérations en attente, en cours et
+ effectués via operation_list. Une fois l'opération effectuée, elle 
+reste environ 30 secondes dans l'état 'terminée' avant d'être supprimée 
+de la liste par le gestionnaire. </p><p>
+ Actuellement, le gestionnaire n'effectue qu'une seule opération à la 
+fois. Si vous demandez la copie d'une image de dvd puis la suppression 
+d'un petit fichier, vous devez attendre la fin de la copie. </p><p>
+ Il est possible de décompresser des archives au format .rar, zip, .tar,
+  tar.gz, tar.bz2. Si l'archive contient un mot de passe, l'opération se
+ mettra en attente jusqu'à ce que vous lui ayait fourni via 
+set_password. Pour les autres formats d'archive, ou généralement pour 
+tous les cas plus compliqués, utilisez d'autres moyens (ftp, montage 
+réseau, ...)</p><br>
+
+
+
+  <h2>Types</h2>
+  
+    <h3><a name="type.async_task_status"><code>async_task_status</code></a></h3>
+    
+    
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>status</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>waiting</th>
+    <td>Opération en attente.</td>
+  </tr>
+  
+  <tr class="">
+    <th>listing</th>
+    <td>Obtention de liste des fichier en cours.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>waiting_password</th>
+    <td>Attente d'un mot de passe.</td>
+  </tr>
+  
+  <tr class="">
+    <th>moving</th>
+    <td>Déplacement de fichiers en cours.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>copying</th>
+    <td>Copie de fichiers en cours.</td>
+  </tr>
+  
+  <tr class="">
+    <th>removing</th>
+    <td>Suppression de fichiers en cours.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>unpacking</th>
+    <td>Décompression d'archive en cours.</td>
+  </tr>
+  
+  <tr class="">
+    <th>done</th>
+    <td>Opération effectuée.</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>percent</li></ul></td>
+       <td>entier</td>
+       <td>Pourcentage de l'opération effectué.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>eta</li></ul></td>
+       <td>entier</td>
+       <td>Temps restant estimé (en secondes).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>rate</li></ul></td>
+       <td>entier</td>
+       <td>Taux de transfer actuel (en octets/seconde).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>completed_bytes</li></ul></td>
+       <td>entier</td>
+       <td>Nombre d'octets déjà transférés.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>total_bytes</li></ul></td>
+       <td>entier</td>
+       <td>Taille totale à transférer (en octets).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>completed_files</li></ul></td>
+       <td>entier</td>
+       <td>Nombre de fichiers traités.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>total_files</li></ul></td>
+       <td>entier</td>
+       <td>Nombre total de fichies à traiter.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>current_file</li></ul></td>
+       <td>chaîne</td>
+       <td>Fichier actuellement en cours de traitement.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>src_path</li></ul></td>
+       <td>chaîne</td>
+       <td>Répertoire source (attention, peut être un fichier).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>dst_path</li></ul></td>
+       <td>chaîne</td>
+       <td>Répertoire destination (attention, peut être un fichier).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>operation</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Type d'opération demandé.</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>move</th>
+    <td>Déplacement.</td>
+  </tr>
+  
+  <tr class="">
+    <th>copy</th>
+    <td>Copie.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>remove</th>
+    <td>Suppression.</td>
+  </tr>
+  
+  <tr class="">
+    <th>unpack</th>
+    <td>Décompression.</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>errcode</li></ul></td>
+       <td>entier</td>
+       <td>Code d'erreur.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>errmsg</li></ul></td>
+       <td>chaîne</td>
+       <td>Message d'erreur (rarement rempli !).</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+    
+  
+
+
+<h2>Méthodes</h2>
+
+<h3><a name="list"><code>fs.list (dir, opt)</code></a></h3>
+<p>
+ Liste les fichiers d'un répertoire donné.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>dir</li></ul></td>
+       <td>chaîne</td>
+       <td>Chemin d'accès vers le répertoire à lister (ex: "/Jeux")</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>opt</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Options:</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>with_partition</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Si 'dir' est '/', donne des informations supplémentaires sur les points de montage.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>with_attr</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Récupère les attributs du fichier (type). L'appel peut être moins rapide.</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>, Tableau de fichiers.</td></tr>
+    
+      <tr><td class="subfield" colspan="2">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>name</li></ul></td>
+       <td>chaîne</td>
+       <td>Nom du répertoire.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>type</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Type du fichier, peut prendre les valeurs suivantes:</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>disk</th>
+    <td>Point de montage du disque interne ou de disques externes.</td>
+  </tr>
+  
+  <tr class="">
+    <th>dir</th>
+    <td>Répertoire</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>file</th>
+    <td>Fichier</td>
+  </tr>
+  
+  <tr class="">
+    <th>link</th>
+    <td>Raccourci</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>other</th>
+    <td>N'importe quoi d'autre (device block, socket), ou non  défini (with&nbsp;attr non spécifié).</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>byte_count</li></ul></td>
+       <td>entier</td>
+       <td>Taille totale du disque en octets (présent si type == "disk")</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>byte_free</li></ul></td>
+       <td>entier</td>
+       <td>Place disponible sur le disque en octets (présent si type == "disk")</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>size</li></ul></td>
+       <td>entier</td>
+       <td>Taille du fichier en octets</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>modification</li></ul></td>
+       <td>entier</td>
+       <td>Date de la derniere modification du fichier (timestamp)</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>mimetype</li></ul></td>
+       <td>entier</td>
+       <td>Mimetype du fichier</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="get"><code>fs.get (file [, opt])</code></a></h3>
+<p>
+ Récupère les données d'un fichier sur le disque. 
+
+  </p><p> Cette méthode, accessible en jsonrpc, n'est pas très efficace 
+car le contenu du fichier a besoin d'être lu pour être encodé en UTF-8. 
+Cela peut aussi se révéler problématique pour les fichiers binaires. La 
+taille maximale est limitée à 4Mo. </p><p>
+ Une autre méthode, sans limitation, disponible en GET, est préférable. 
+eg: wget 'http://mafreebox.freebox.fr/fs.cgi?file=/Disque dur/gros.img'</p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>file</li></ul></td>
+       <td>chaîne</td>
+       <td>Nom d'accès absolu du fichier.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>opt</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Options:</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>base64</li></ul></td>
+       <td>chaîne</td>
+       <td>Obtenir le contenu du fichier encodé en base64.</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Une chaîne de caractèresde chaîne de caractères, Le contenu du fichier.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="operation_progress"><code>fs.operation_progress (id)</code></a></h3>
+<p>
+ Récupère l'état d'une tâche asynchrone en cours.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de l'opération.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un objet de type <a href="#type.async_task_status">async_task_status</a>.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="operation_list"><code>fs.operation_list ()</code></a></h3>
+<p>
+ Récupère la liste de toutes les opérations asynchrones en cours.
+
+  </p><p></p>
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un tableau d'objets de type <a href="#type.async_task_status">async_task_status</a>.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="abort"><code>fs.abort (id)</code></a></h3>
+<p>
+ Récupère l'état d'une tâche asynchrone en cours.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de l'opération.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="set_password"><code>fs.set_password (id, password)</code></a></h3>
+<p>
+ Fourni un mot de passe à l'opération asynchrone le requérant.  La tâche doit être dans l'état 'waiting_password'.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de l'opération.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>password</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="move"><code>fs.move (from, to)</code></a></h3>
+<p>
+ Déplace un ou des fichiers vers un nouveau répertoire.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>from</li></ul></td>
+       <td>chaîne</td>
+       <td>Fichier/répertoire source. Peut être une chaîne de caractère ou un tableau.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>to</li></ul></td>
+       <td>chaîne</td>
+       <td>Fichier/répertoire de destination.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un entierd'entier, Identifiant de cette nouvelle l'opération.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="copy"><code>fs.copy (from, to)</code></a></h3>
+<p>
+ Copie un ou des fichiers vers un nouveau répertoire.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>from</li></ul></td>
+       <td>chaîne</td>
+       <td>Fichier/répertoire source. Peut être une chaîne de caractère ou un tableau.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>to</li></ul></td>
+       <td>chaîne</td>
+       <td>Fichier/répertoire de destination.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un entierd'entier, Identifiant de cette nouvelle l'opération.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="remove"><code>fs.remove (path)</code></a></h3>
+<p>
+ Supprime définitivement un ou des fichiers.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>path</li></ul></td>
+       <td>chaîne</td>
+       <td>Fichier(s)/répertoire source. Peut être une chaîne de caractère ou un tableau.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un entierd'entier, Identifiant de cette nouvelle l'opération.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="unpack"><code>fs.unpack (archive [, destination])</code></a></h3>
+<p>
+ Décompresse une archive dans le répertoire.  Si le répertoire de 
+destination n'est pas renseigné, décompresse dans le répertoire ou se 
+trouve l'archive.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>archive</li></ul></td>
+       <td>chaîne</td>
+       <td>Chemin complet vers l'archive à décompresser.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>destination</li></ul></td>
+       <td>chaîne</td>
+       <td>Répertoire de destination.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un entierd'entier, Identifiant de cette nouvelle l'opération.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="mkdir"><code>fs.mkdir (path)</code></a></h3>
+<p>
+ Crée un répertoire sous /media étant donné son chemin
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>path</li></ul></td>
+       <td>chaîne</td>
+       <td>répertoire à créer (chaîne de caractère).</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un entierd'entier, true si l'opération a réussi.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+</body></html>

@@ -1,0 +1,225 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"></head><body><h1>WiFi</h1>
+
+  
+  <p></p><br>
+
+
+
+
+<h2>Méthodes</h2>
+
+<h3><a name="status_get"><code>wifi.status_get ()</code></a></h3>
+<p>
+ Retourne l'état du réseau sans fil
+
+  </p><p></p>
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="config_get"><code>wifi.config_get ()</code></a></h3>
+<p>
+ Retourne la configuration du réseau sans fil
+
+  </p><p></p>
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="ap_params_set"><code>wifi.ap_params_set (params)</code></a></h3>
+<p>
+ Modifie la configuration de la carte Wifi
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>params</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="bss_params_set"><code>wifi.bss_params_set (bss_cfg_name, params)</code></a></h3>
+<p>
+ Modifie la configuration d'un point d'accès
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>bss_cfg_name</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>params</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="mac_filter_add"><code>wifi.mac_filter_add (bss_cfg_name, filter_type, mac, comment)</code></a></h3>
+<p>
+ Ajoute une entrée �&nbsp; la liste des MACs autorisées/interdites
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>bss_cfg_name</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>filter_type</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>mac</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>comment</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="mac_filter_del"><code>wifi.mac_filter_del (bss_cfg_name, filter_type, mac)</code></a></h3>
+<p>
+ Supprime une entrée de la liste des MACs autorisées/interdites
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>bss_cfg_name</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>filter_type</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>mac</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="stations_get"><code>wifi.stations_get (bssid, enabled)</code></a></h3>
+<p>
+ Retourne la liste des stations associées
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>bssid</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>enabled</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+</body></html>

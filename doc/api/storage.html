@@ -1,0 +1,501 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><h1>Système de stockage</h1>
+
+  
+  <p></p><br>
+
+
+
+  <h2>Types</h2>
+  
+    <h3><a name="type.disk_bus"><code>disk_bus</code></a></h3>
+    <p>Type du périphérique</p><p>
+    
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>internal</th>
+    <td>Disque interne</td>
+  </tr>
+  
+  <tr class="">
+    <th>sata</th>
+    <td>Disque externe SATA</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>usb</th>
+    <td>Disque externe USB</td>
+  </tr>
+  
+</tbody></table>
+
+    </p><hr>
+  
+    <h3><a name="type.filesystem"><code>filesystem</code></a></h3>
+    <p>Type du système de fichier</p><p>
+    
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>empty</th>
+    <td>Aucun système de fichier</td>
+  </tr>
+  
+  <tr class="">
+    <th>unknown</th>
+    <td>Système de fichier inconnu</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>xfs</th>
+    <td>XFS</td>
+  </tr>
+  
+  <tr class="">
+    <th>vfat</th>
+    <td>Microsoft FAT32</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>ext4</th>
+    <td>Linux ext4 (ou ext2/ext3)</td>
+  </tr>
+  
+  <tr class="">
+    <th>ntfs</th>
+    <td>NTFS</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>hfs</th>
+    <td>HFS</td>
+  </tr>
+  
+  <tr class="">
+    <th>hfsplus</th>
+    <td>HFS+</td>
+  </tr>
+  
+</tbody></table>
+
+    </p><hr>
+  
+    <h3><a name="type.disk"><code>disk</code></a></h3>
+    <p>Périphérique de stockage (disque dur)</p><p>
+    
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>disk_id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant du disque dur, nécessaire pour les opérations ciblant un périphérique en particulier</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>state</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>error</th>
+    <td>Erreur sur le périphérique.</td>
+  </tr>
+  
+  <tr class="">
+    <th>disabled</th>
+    <td>Périphérique non utilisé.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>enabled</th>
+    <td>Périphérique en cours d'utilisation.</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>type</li></ul></td>
+       <td><a href="#type.disk_bus">disk_bus</a></td>
+       <td>Type du périphérique</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>total_bytes</li></ul></td>
+       <td>entier</td>
+       <td>Taille du disque en octets.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>partitions</li></ul></td>
+       <td><a href="#type.partition">[ partition ]</a></td>
+       <td>Partition d'un disque dur</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>connector</li></ul></td>
+       <td>int</td>
+       <td>Numéro du connecteur USB/eSATA sur lequel le disque est branché</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+    </p><hr>
+  
+    <h3><a name="type.partition"><code>partition</code></a></h3>
+    <p>Partition d'un disque dur</p><p>
+    
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>fstype</li></ul></td>
+       <td><a href="#type.filesystem">filesystem</a></td>
+       <td>Type du système de fichier</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>partition_id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant unique de la partition</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>disk_id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant du périphérique sur lequel se trouve cette partition</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>label</li></ul></td>
+       <td>chaîne</td>
+       <td>Nom de la partition</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>state</li></ul></td>
+       <td>&nbsp;</td>
+       <td>État de la partition</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>error</th>
+    <td>Une erreur s'est produite, la partition n'est pas utilisable</td>
+  </tr>
+  
+  <tr class="">
+    <th>checking</th>
+    <td>La partition est en cours de vérification</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>formating</th>
+    <td>La partition est en cours de formatage</td>
+  </tr>
+  
+  <tr class="">
+    <th>mounting</th>
+    <td>La partition est en cours d'activation</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>maintenance</th>
+    <td>Opération interne en cours (uniquement pour le disque interne)</td>
+  </tr>
+  
+  <tr class="">
+    <th>mounted</th>
+    <td>La partition est utilisable</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>umounting</th>
+    <td>La partition est en cours de désactivation</td>
+  </tr>
+  
+  <tr class="">
+    <th>umounted</th>
+    <td>La partition est désactivée</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>total_bytes</li></ul></td>
+       <td>entier</td>
+       <td>Taille de la partition en octets</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>free_bytes</li></ul></td>
+       <td>entier</td>
+       <td>Nombre d'octets libre</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>used_bytes</li></ul></td>
+       <td>entier</td>
+       <td>Nombre d'octets disponibles</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>block_count</li></ul></td>
+       <td>entier</td>
+       <td>Nombre de blocks total</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>block_used</li></ul></td>
+       <td>entier</td>
+       <td>Nombre de blocks utilisés</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>block_available</li></ul></td>
+       <td>entier</td>
+       <td>Nombre de blocks disponibles</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>block_size</li></ul></td>
+       <td>entier</td>
+       <td>Taille du block</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+    
+  
+
+
+</p><h2>Méthodes</h2>
+
+<h3><a name="list"><code>storage.list ()</code></a></h3>
+<p>
+ Liste tous les périphériques de stockage présent sur le NAS avec leurs partitions. 
+
+  </p><p> Une partition est considérée comme fonctionnelle (on peut lire, écrire, etc...) que quand son état 'state' est a 'mounted'. </p><p>
+ Pour lister les fichiers d'une partition fonctionnelle, utilisez le 
+module Système de fichier (fs.list), le premier composant du chemin 
+d'accès est le nom de la partition. Par exemple, si le label est 'Clé 
+USB', faites fs.list('/Clé USB/')</p>
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un tableau d'objets de type <a href="#type.disk">disk</a>.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="disk_get"><code>storage.disk_get (disk_id)</code></a></h3>
+<p>
+ Récupère les informations sur un périphérique donné. 
+
+  </p><p> Le disque dur interne a toujours l'identifiant disk_id de 0. Voir les autres commentaires de storage.list.</p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>disk_id</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un objet de type <a href="#type.disk">disk</a>.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="disk_format_internal"><code>storage.disk_format_internal ()</code></a></h3>
+<p>
+ Formate le disque interne
+
+  </p><p></p>
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="disk_disable"><code>storage.disk_disable (disk_id)</code></a></h3>
+<p>
+ Désactive un périphérique externe. 
+
+  </p><p> Démonte toutes les partitions du périphérique donné.</p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>disk_id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant du disque.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="mount"><code>storage.mount (partition_id)</code></a></h3>
+<p>
+ Active une partition
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>partition_id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de la partition</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="umount"><code>storage.umount (partition_id)</code></a></h3>
+<p>
+ Désactive une partition 
+
+  </p><p> Il est impossible de désactiver une partition du disque dur interne.</p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>partition_id</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Identifiant de la partition</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="disable"><code>storage.disable (disk_id)</code></a></h3>
+<p>
+ Désactive toutes les partitions d'un disque dur. 
+
+  </p><p> Après cette appel, il est conseillé de surveiller le champ 
+"state" du périphérique. Dès qu'il passe dans l'état "disabled", il est 
+possible de retirer physiquement le périphérique externe sans danger.</p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>disk_id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant du périphérique</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+</body></html>

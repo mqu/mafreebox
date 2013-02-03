@@ -1,0 +1,593 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"></head><body><h1>Téléchargement</h1>
+
+  
+  <p> Module permettant d'ajouter/supprimer/lister des téléchargements vers des liens http, ftp ou fichier torrents. </p><p>
+ Pour les protocoles http/ftp, il n'est possible de télécharger que 
+sur des serveurs ne demandant ni authentification ni n'utilisant un 
+protocole de chiffrement (c'est �&nbsp; dire pas de https, ftps). De 
+même, les téléchargement récursifs (mirroir) ne sont pas possible. </p><p>
+ Pour le protocole torrent, une interface minimaliste est disponible via
+ ces commandes. Pour plus de contrôle, reportez vous �&nbsp; 
+l'interface directe de transmission. </p><p>
+ �&#8364; chaque tâche ajoutée est associé un identifiant, qui pourra vous 
+servir �&nbsp; la contrôler (récupérer l'état, la supprimer, ...). 
+Les identifiants ne sont pas unique entre protocoles.</p><br>
+
+
+
+  <h2>Types</h2>
+  
+    <h3><a name="type.dltype"><code>dltype</code></a></h3>
+    <p>Protocole utilisé par la tâche.</p><p>
+    
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>torrent</th>
+    <td>Téléchargement d'un fichier torrent.</td>
+  </tr>
+  
+  <tr class="">
+    <th>http</th>
+    <td>Téléchargement d'un lien ftp.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>ftp</th>
+    <td>Téléchargement d'un lien ftp.</td>
+  </tr>
+  
+</tbody></table>
+
+    </p><hr>
+  
+    <h3><a name="type.task"><code>task</code></a></h3>
+    <p>�&#8240;tat d'une opération de téléchargement.</p><p>
+    
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de la tâche.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>type</li></ul></td>
+       <td><a href="#type.dltype">dltype</a></td>
+       <td>Protocole utilisé par la tâche.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>name</li></ul></td>
+       <td>chaîne</td>
+       <td>Nom donné �&nbsp; cette tâche.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>url</li></ul></td>
+       <td>chaîne</td>
+       <td>Lien http/ftp (uniquement http/ftp).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>status</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+      <tr><td class="enum" colspan="3">
+<table class="enum">
+  
+  <tbody><tr class="odd">
+    <th>queued</th>
+    <td>Tâche dans la file d'attente (en attente de téléchargement, uniquement http/ftp).</td>
+  </tr>
+  
+  <tr class="">
+    <th>running</th>
+    <td>Tâche en cours de téléchargement.</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>seeding</th>
+    <td>Tâche en cours de diffusion (uniquement torrent).</td>
+  </tr>
+  
+  <tr class="">
+    <th>paused</th>
+    <td>Tâche interrompue (en pause).</td>
+  </tr>
+  
+  <tr class="odd">
+    <th>done</th>
+    <td>Tâche terminée.</td>
+  </tr>
+  
+  <tr class="">
+    <th>error</th>
+    <td>Une erreur s'est produite.</td>
+  </tr>
+  
+</tbody></table>
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>size</li></ul></td>
+       <td>entier</td>
+       <td>Taille totale du fichier (en octets).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>transferred</li></ul></td>
+       <td>entier</td>
+       <td>Taille du fichier transférée jusque l�&nbsp; (en octets).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>rx_rate</li></ul></td>
+       <td>entier</td>
+       <td>Vitesse de téléchargement (en octets/seconde).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>tx_rate</li></ul></td>
+       <td>entier</td>
+       <td>Vitesse de diffusion (en octets/seconde, torrent).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>rx_peer</li></ul></td>
+       <td>entier</td>
+       <td>Nombre de connexion �&nbsp; d'autres utilisateurs pour le  téléchargement (torrent).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>tx_peer</li></ul></td>
+       <td>entier</td>
+       <td>Nombre de connexion �&nbsp; d'autres utilisateurs pour la diffusion (torrent).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>errmsg</li></ul></td>
+       <td>chaîne</td>
+       <td>Message d'erreur (si status == 'error').</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+    </p><hr>
+  
+    <h3><a name="type.cfg"><code>cfg</code></a></h3>
+    <p>Options de configuration utilisateur.</p><p>
+    
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>download_dir</li></ul></td>
+       <td>chaîne</td>
+       <td>Répertoire de téléchargement.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>refresh_rate</li></ul></td>
+       <td>entier</td>
+       <td>Temps de rafraîchissement de l'interface web (en millisecondes).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>max_peer</li></ul></td>
+       <td>entier</td>
+       <td>Nombre maximum de connexion �&nbsp; d'autres utilisateurs (torrent).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>max_dl</li></ul></td>
+       <td>entier</td>
+       <td>Vitesse maximale de téléchargement (en ko/s, torrent).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>max_up</li></ul></td>
+       <td>entier</td>
+       <td>Vitesse maximale de diffusion (en ko/s, torrent).</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>seed_ratio</li></ul></td>
+       <td>entier</td>
+       <td>Ratio téléchargement/diffusion �&nbsp; atteindre avant de stopper la diffusion (torrent).</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+    
+  
+
+
+</p><h2>Méthodes</h2>
+
+<h3><a name="start"><code>download.start (type, id)</code></a></h3>
+<p>
+ Débute le téléchargement d'une tâche.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>type</li></ul></td>
+       <td><a href="#type.dltype">dltype</a></td>
+       <td>Protocole utilisé par la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="stop"><code>download.stop (type, id)</code></a></h3>
+<p>
+ Met un téléchargement en pause.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>type</li></ul></td>
+       <td><a href="#type.dltype">dltype</a></td>
+       <td>Protocole utilisé par la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="remove"><code>download.remove (type, id)</code></a></h3>
+<p>
+ Supprime un téléchargement. Si l'objectif est d'interrompre un 
+téléchargement en cours, il vaut mieux supprimer les fichiers 
+partiellement obtenus.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>type</li></ul></td>
+       <td><a href="#type.dltype">dltype</a></td>
+       <td>Protocole utilisé par la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="torrent_add"><code>download.torrent_add (opt)</code></a></h3>
+<p>
+ Ajoute un téléchargement, en utilisant le protocole bittorrent.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>opt</li></ul></td>
+       <td>&nbsp;</td>
+       <td>Paramètres pour l'ajout. Un seul de ces champs est nécessaire.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>url</li></ul></td>
+       <td>chaîne</td>
+       <td>Un lien http vers le fichier torrent.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>magnet</li></ul></td>
+       <td>chaîne</td>
+       <td>Un lien torrent de type magnet link.</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>data</li></ul></td>
+       <td>chaîne</td>
+       <td>Le contenu du fichier torrent, encodé en base64.</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un entier, Identifiant de la tâche.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="http_add"><code>download.http_add (name, url)</code></a></h3>
+<p>
+ Ajoute un téléchargement, en utilisant le protocole http.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>name</li></ul></td>
+       <td>chaîne</td>
+       <td>Le nom affiché du téléchargement</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>url</li></ul></td>
+       <td>chaîne</td>
+       <td>Le lien http �&nbsp; télécharger.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un entier, Identifiant de la tâche.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="get"><code>download.get (type, id)</code></a></h3>
+<p>
+ Récupère l'état d'un téléchargement.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>type</li></ul></td>
+       <td><a href="#type.dltype">dltype</a></td>
+       <td>Protocole utilisé par la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>id</li></ul></td>
+       <td>entier</td>
+       <td>Identifiant de la tâche.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un objet de type <a href="#type.task">task</a>.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="list"><code>download.list ()</code></a></h3>
+<p>
+ Récupère la liste de tous les téléchargements en cours et terminés.
+
+  </p><p></p>
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un tableau d'objets de type <a href="#type.task">task</a>.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="config_get"><code>download.config_get ()</code></a></h3>
+<p>
+ Récupère la configuration utilisateur du module de téléchargement.
+
+  </p><p></p>
+
+
+
+
+  <h4>Retour:</h4>
+  <table class="param">
+    <tbody><tr><td>Un objet de type <a href="#type.cfg">cfg</a>.</td></tr>
+    
+  </tbody></table>
+
+<p></p>
+<hr>
+
+<h3><a name="config_set"><code>download.config_set (cfg)</code></a></h3>
+<p>
+ Modifie la configuration utilisateur du module de téléchargement.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>cfg</li></ul></td>
+       <td><a href="#type.cfg">cfg</a></td>
+       <td>Options de configuration utilisateur.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+</body></html>

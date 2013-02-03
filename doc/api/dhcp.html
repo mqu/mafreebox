@@ -1,0 +1,158 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"></head><body><h1>Serveur DHCP</h1>
+
+  
+  <p></p><br>
+
+
+
+
+<h2>Méthodes</h2>
+
+<h3><a name="status_get"><code>dhcp.status_get ()</code></a></h3>
+<p>
+ Retourne l'état du serveur dhcp.
+
+  </p><p></p>
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="leases_get"><code>dhcp.leases_get ()</code></a></h3>
+<p>
+ Retourne la liste des baux DHCP courants.
+
+  </p><p></p>
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="sleases_get"><code>dhcp.sleases_get ()</code></a></h3>
+<p>
+ Retourne la liste des baux statiques configurés.
+
+  </p><p></p>
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="config_get"><code>dhcp.config_get ()</code></a></h3>
+<p>
+ Retourne la configuration du serveur DHCP
+
+  </p><p></p>
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="config_set"><code>dhcp.config_set (params)</code></a></h3>
+<p>
+ Modifie la configuration du serveur DHCP
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>params</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="slease_add"><code>dhcp.slease_add (mac, ip, comment)</code></a></h3>
+<p>
+ Ajoute un bail statique
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>mac</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>ip</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>comment</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="slease_del"><code>dhcp.slease_del (mac)</code></a></h3>
+<p>
+ Supprime un bail statique
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>mac</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+</body></html>

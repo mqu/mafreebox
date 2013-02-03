@@ -1,0 +1,129 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"></head><body><h1>Utilisateurs</h1>
+
+  
+  <p></p><br>
+
+
+
+
+<h2>Méthodes</h2>
+
+<h3><a name="password_reset"><code>user.password_reset (login)</code></a></h3>
+<p>
+ Réinitialize le mot de passe d'un utilisateur. 
+
+  </p><p> Pour changer le mot de passe sans avoir le précédent en sa 
+possession, l'utilisateur doit être devant sa freebox: un code 
+généré aléatoirement sera affiché sur l'écran du NAS,  qui devra 
+être renseigné �&nbsp; la place de l'ancien mot de passe. </p><p>
+ Cette fonction génère une chaîne aléatoire et l'affiche �&nbsp; 
+l'écran (il n'est pas possible pour vous de la récupérer). Appelez 
+ensuite "user.password_set" avec cette chaîne �&nbsp; la place de 
+"old_pass".</p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>login</li></ul></td>
+       <td>chaîne</td>
+       <td>Nom d'utilisateur.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="password_set"><code>user.password_set (login, oldpass, newpass)</code></a></h3>
+<p>
+ Change le mot de passe d'un utilisateur.
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>login</li></ul></td>
+       <td>chaîne</td>
+       <td>Nom d'utilisateur.</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>oldpass</li></ul></td>
+       <td>chaîne</td>
+       <td>Ancien mot de passe, ou chaîne de vérification (voir "password_reset").</td>
+    </tr>
+    
+      <tr><td class="subfield" colspan="3">
+  
+</td></tr>
+    
+  
+    <tr>
+       <td><ul class="field"><li>newpass</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+<h3><a name="password_check_quality"><code>user.password_check_quality (passwd)</code></a></h3>
+<p>
+ Verifie la qualité d'un mot de passe utilisateur
+
+  </p><p></p>
+
+
+  <h4>Paramètres en entrée:</h4>
+  
+  
+  <table class="field">
+  
+    <tbody><tr>
+       <td><ul class="field"><li>passwd</li></ul></td>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
+    
+  
+  </tbody></table>
+  
+
+
+
+
+<p></p>
+<hr>
+
+</body></html>
