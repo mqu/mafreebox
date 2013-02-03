@@ -8,14 +8,14 @@ L'API est actuellement disponible en langage PHP. Prochainement, sera développ�
 
 Cette API est organisée en classe de façon modulaire et couvre (couvrira) les aspects suivants :
 
-Mafreebox : couvre les aspects :
+**Mafreebox** : couvre les aspects :
 - login,
 - exécution des requetes JSON,
 
-Account : account basic http authentication
+**Account** : account basic http authentication
     account.unknown
 
-Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
+**Fs : Systeme de fichiers** : Fonctions permettant de lister et de gérer les fichiers du NAS.
 - fs.list
 - fs.get
 - fs.operation_progress
@@ -28,7 +28,7 @@ Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichi
 - fs.unpack
 - fs.mkdir
 
-Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
+**Fw : Firewall** : Fonctions permettant d'interagir avec le firewall.
 - fw.wan_redirs_get
 - fw.wan_range_redirs_get
 - fw.wan_redir_del
@@ -43,29 +43,29 @@ Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
 - fw.lfilter_add
 - fw.lfilter_del
 
-Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+**Igd : UPnP IGD** : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
 - igd.config_get
 - igd.config_set
 - igd.redirs_ge
 - igd.redir_del
 
-IPv6 : Fonctions permettant de configurer IPv6
+**IPv6** : Fonctions permettant de configurer IPv6
 - ipv6.config_get
 - ipv6.config_set
 
-Lan : Fonctions permettant de configurer le réseau LAN.
+**Lan** : Fonctions permettant de configurer le réseau LAN.
 - lan.ip_address_get
 - lan.ip_address_set
 
-Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
+**Lcd** : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
 - lcd.brightness_get
 - lcd.brightness_set
 
-Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage windows de la freebox.
+**Share** : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage windows de la freebox.
 - share.get_config
 - share.set_config
 
-Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
+**Storage** : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
 - storage.list
 - storage.disk_get
 - storage.disk_format_internal
@@ -74,12 +74,12 @@ Storage : Systeme de stockage : Gestion du disque dur interne et des disques ext
 - storage.umount
 - storage.disable
 
-User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
+**User** : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
 - user.password_reset
 - user.password_set
 - user.password_check_quality
 
-WiFi : Fonctions permettant de paramétrer le rÃ©seau sans-fil.
+**WiFi** : Fonctions permettant de paramétrer le rÃ©seau sans-fil.
 - wifi.status_get
 - wifi.config_get
 - wifi.ap_params_set
@@ -88,8 +88,8 @@ WiFi : Fonctions permettant de paramétrer le rÃ©seau sans-fil.
 - wifi.mac_filter_del
 - wifi.stations_get
 
-Exemples d'utilisation :
-
+**Exemples d'utilisation** :
+```php
 <?php
 
 error_reporting(E_ALL);
@@ -102,12 +102,13 @@ $freebox = new Mafreebox('http://mafreebox.freebox.fr', 'freebox', 'mon.mdp');
 $contenu = $freebox->exec( 'fs.list', array('/Disque dur') );
 
 # ajouter un téléchargement
-$url = '';
-$file = '';
+$url = 'http://www..../mon-fichier.txt';
+$file = 'mon-ficher.txt';
 $freebox->download()->http_add($file, $url));
 
 # rebooter la freebox
 $freebox->system()->reboot();
 
 ?>
+```
 
