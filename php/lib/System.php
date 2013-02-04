@@ -23,6 +23,9 @@ class System {
 	public function mac_address_get(){
 		return $this->fb->exec('systeme.mac_address_get');
 	}
+	public function serial_get(){
+		return $this->fb->exec('systeme.serial');
+	}
 	public function reboot($timeout){
 		return $this->fb->exec('systeme.reboot', $timeout);
 	}

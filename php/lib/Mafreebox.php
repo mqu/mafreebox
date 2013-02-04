@@ -31,10 +31,10 @@ $contenu = $freebox->exec( 'fs.list', array('/Disque dur') );
 
 $url = '';
 $file = '';
-$freebox->download()->http_add($file, $url));
+$freebox->download->http_add($file, $url));
 
 # rebooter la freebox
-$freebox->system()->reboot();
+$freebox->system->reboot();
 
 ?>
 
@@ -69,11 +69,12 @@ class Mafreebox {
     
     private $cookie;
 
-    protected $dhcp;
-    protected $download;
-    protected $ftp;
-    protected $system;
-    protected $phone;
+	protected $modules = array();
+    # protected $dhcp;
+    # protected $download;
+    # protected $ftp;
+    # protected $system;
+    # protected $phone;
 
     /**
      * Constructeur classique
@@ -89,13 +90,12 @@ class Mafreebox {
         
         // Connexion automatique puis récupération du cookie.
         $this->cookies = $this->login($this->login, $this->password);
-        
-        # sub-classes for each services.
-        $this->dhcp = new Dhcp($this);
-        $this->download = new Download($this);
-        $this->ftp = new Ftp($this);
-        $this->system = new System($this);
-        $this->phone = new Phone($this);
+
+		$this->modules['dhcp']     = new Dhcp($this);
+		$this->modules['download'] = new Download($this);
+		$this->modules['ftp']      = new Ftp($this);
+		$this->modules['system']   = new System($this);
+		$this->modules['phone']    = new Phone($this);
     }
 
     /**
@@ -188,20 +188,12 @@ class Mafreebox {
 		# ...
 	}
 	
-	public function dhcp(){
-		return $this->dhcp;
-	}
-	public function download(){
-		return $this->download;
-	}
-	public function ftp(){
-		return $this->ftp;
-	}
-	public function system(){
-		return $this->system;
-	}
-	public function phone(){
-		return $this->phone;
+	# allow magic acces : $freebox->module->method()
+	public function __get($name){
+		if(array_key_exists($name, $this->modules))
+			return $this->modules[$name];
+		else
+			throw new Exception ("module $name does't exists");
 	}
 }
 /* Subclasses with all JSON services.

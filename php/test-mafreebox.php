@@ -50,22 +50,10 @@ if(file_exists($config_file)){
 	$config = array(
 		'url'      => 'http://mafreebox.freebox.fr/',
 		'user'     => 'freebox',
-		'password' => '123456'
+		'password' => '123456' # your password
 	);
 
 $freebox = new Mafreebox($config['url'], $config['user'], $config['password']);
-
-print_r($freebox->exec('conn.status')); exit(0);
-# print_r($freebox->exec('system.fw_release_get')); exit(0);
-# print_r($freebox->reboot()); exit(0);
-# print_r($freebox->exec( 'fs.list', array('/'))); exit(0);
-# print_r($freebox->exec( 'fs.list', array('/Disque dur/'))); exit(0);
-
-// Listons le contenu du disque dur interne de la Freebox.
-# $contenu = $freebox->exec( 'fs.list', array('/Disque dur/Enregistrements') );
-# print_r($contenu);
-
-# print_r($freebox->exec( 'conn.logs' ));
 
 
 /*
@@ -108,14 +96,47 @@ switch(get_arg(1, 'daily')){
 		rrd_weekly($freebox);
 		break;
 
-	case 'test': 
-	case 'debug': 
-		# $freebox->debug();
-		# print_r($freebox->dhcp()->status_get());
-		# print_r($freebox->dhcp()->leases_get());
-		# print_r($freebox->dhcp()->sleases_get());
-		# print_r($freebox->download()->_list());
-		
+
+	case 'json':
+	case 'json-exec':
+	case 'exec':
+		print_r($freebox->exec('conn.status'));
+		break;
+
+	case 'dhcp': 
+		print_r($cnf = $freebox->dhcp->config_get());
+		# print_r($cnf = $freebox->dhcp->config_set($cnf));
+		print_r($freebox->dhcp->status_get());
+		print_r($freebox->dhcp->leases_get());
+		print_r($freebox->dhcp->sleases_get());
+		break;
+
+	case 'system': 
+		print_r($freebox->system->uptime_get());
+		print_r($freebox->system->mac_address_get());
+		print_r($freebox->system->fw_release_get());
+		# print_r($freebox->phone->reboot($timeout=60));
+		break;
+
+	case 'phone': 
+		# print_r($freebox->phone->fxs_ring(true)); sleep (3);
+		# var_dump($freebox->phone->fxs_ring(false));
+		print_r($freebox->phone->status());
+		break;
+
+	case 'ftp': 
+		print_r($cnf = $freebox->ftp->get_config());
+		# $cnf['enabled'] = 1;
+		# $cnf['allow_anonymous'] = 1;
+		# $cnf['allow_anonymous_write'] = 1;
+		# $cnf['password'] = '123456';
+		# $cnf = $freebox->ftp->get_config($cnf);
+		break;
+
+	case 'download': 
+
+		print_r($freebox->download->_list());
+
 		$args = array(
 			'max_up' => 90,
 			'download_dir' => '/Disque dur/Téléchargements',
@@ -123,28 +144,27 @@ switch(get_arg(1, 'daily')){
 			'max_peer' => 240,
 			'seed_ratio' => 2
 		);
-		# print_r($freebox->download()->http_add('ubuntu.iso', 'ftp://ftp.free.fr/mirrors/ftp.ubuntu.com/releases/12.10/ubuntu-12.10-desktop-i386.iso'));
-		print_r($freebox->download()->_list());
+		# print_r($freebox->download->http_add('ubuntu.iso', 'ftp://ftp.free.fr/mirrors/ftp.ubuntu.com/releases/12.10/ubuntu-12.10-desktop-i386.iso'));
+		print_r($freebox->download->_list());
 		$id = 849;
 		$type='http';
-		# print_r($freebox->download()->stop($type, $id));
-		# print_r($freebox->download()->start($type, $id));
-		# print_r($freebox->download()->remove($type, $id));
+		# print_r($freebox->download->stop($type, $id));
+		# print_r($freebox->download->start($type, $id));
+		# print_r($freebox->download->remove($type, $id));
 		$url = 'http://ftp.free.fr/mirrors/ftp.ubuntu.com/releases/12.10/ubuntu-12.10-desktop-armhf%2bomap4.img.torrent';
-		print_r($freebox->download()->torrent_add($url));
+		print_r($freebox->download->torrent_add($url));
 
-		# print_r($freebox->download()->config_get());
-		# print_r($freebox->download()->config_set($args));
+		# print_r($freebox->download->config_get());
+		# print_r($freebox->download->config_set($args));
+		break;
 
-		# print_r($cfg = $freebox->ftp()->get_config());
-		# print_r($freebox->ftp()->set_config($cfg));
+	case 'test': 
+	case 'debug': 
+		# $freebox->debug();
 		
-		# print_r($freebox->system()->uptime_get());
-		# print_r($freebox->system()->mac_address_get());
-		# print_r($freebox->system()->fw_release_get());
 
-		# print_r($freebox->phone()->fxs_ring(false));
-
+		# print_r($cfg = $freebox->ftp->get_config());
+		# print_r($freebox->ftp->set_config($cfg));
 
 		break;
 }

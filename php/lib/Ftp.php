@@ -2,20 +2,22 @@
 
 /* author : Marc Quinton, février 2013, licence : http://fr.wikipedia.org/wiki/WTFPL 
 
-FTP
+FTP : Fonctions permettant d'interagir avec le serveur FTP.
+
+
 Types :
-ftp_config
-    enabled               booléen 	Le serveur est activé ou non.
-    allow_anonymous       booléen 	Les connections anonymes sont autorisées en lecture seule.
-    allow_anonymous_write booléen 	De plus, les invitées ont le droit d'écrire.
 
-Méthodes
-- ftp.get_config () Récupére la configuration du serveur ftp.
-  retour: Un objet de type ftp_config.
+ftp-config
+- enabled               booléen 	Le serveur est activé ou non.
+- allow_anonymous       booléen 	Les connections anonymes sont autorisées en lecture seule.
+- allow_anonymous_write booléen 	De plus, les invitées ont le droit d'écrire.
 
-- ftp.set_config (cfg) Change la configuration du serveur ftp.
-  - paramêtres en entrée:
-    - cfg ftp_config 	
+
+Méthodes:
+
+ftp.get_config (config:ftp-config) Récupére la configuration du serveur ftp.
+ftp.set_config (config:ftp-config) Change la configuration du serveur ftp.
+
 
 */
 
@@ -34,5 +36,19 @@ class Ftp{
 	}
 }
 
+/*
+
+usage :
+
+$freebox = new Mafreebox('http://mafreebox.freebox.fr', 'freebox', 'mon.mdp');
+
+print_r($cnf = $freebox->ftp->get_config());
+# $cnf['enabled'] = 1;
+# $cnf['allow_anonymous'] = 1;
+# $cnf['allow_anonymous_write'] = 1;
+# $cnf['password'] = '123456';
+$cnf = $freebox->ftp->get_config($cnf);
+
+*/
 
 ?>
