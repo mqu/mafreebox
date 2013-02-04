@@ -64,3 +64,5 @@ $freebox->system()->reboot();
 # sudo apt-get install php5-cli php5-curl
 # php -q test-mafreebox.php
 ```
+**Documentation**
+Vous trouverez toute la documentation sur le Wiki github : <https://github.com/mqu/mafreebox/wiki>
