@@ -83,6 +83,22 @@ class Storage {
 	public function disk_advanced_informations_get($id){
 		return $this->fb->exec('storage.disk_advanced_informations_get', $id);
 	}
+
+	# c'est l'attribut 'disk_id' qui doit être passé à ces méthodes.
+	public function mount($id){
+		return $this->fb->exec('storage.mount', $id);
+	}
+	public function umount($id){
+		return $this->fb->exec('storage.umount', $id);
+	}
+	
+	public function disable($id){
+		return $this->fb->exec('storage.disable', $id);
+	}
+	
+	public function partition_fsck($id){
+		return $this->fb->exec('storage.partition_fsck', $id);
+	}
 }
 
 /*
@@ -225,6 +241,91 @@ Array
         )
 
 )
+
+
+2Go usb flash drive :
+
+    [1] => Array
+        (
+            [drive_ident] => Array
+                (
+                    [smart_supported] => 
+                    [rotation_rate] => 0
+                    [model] => 
+                    [smart_enabled] => 
+                    [snumber] => 
+                    [temp_supported] => 
+                    [firmware] => 
+                )
+
+            [type] => usb
+            [total_bytes] => 2056257536
+            [connector] => 0
+            [table_type] => msdos
+            [state_data] => Array
+                (
+                    [idle] => 0
+                )
+
+            [state] => enabled
+            [internal_bluray] => 
+            [partitions] => Array
+                (
+                    [0] => Array
+                        (
+                            [dev_block_count] => 4016065
+                            [dev_block_size] => 512
+                            [label] => ___________
+                            [root_free_bytes] => Array
+                                (
+                                    [str] => 1,25 GBytes
+                                    [val] => 1252409344
+                                )
+
+                            [bdev_major] => 8
+                            [phys_block_size] => 512
+                            [used_bytes] => 799784960
+                            [dev_total_bytes] => Array
+                                (
+                                    [str] => 2,05 GBytes
+                                    [val] => 2056225280
+                                )
+
+                            [bdev_minor] => 17
+                            [fsck_result] => no_run_yet
+                            [free_bytes] => 1252409344
+                            [bind_places] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [source] => /
+                                            [target] => /mnt/disks/by-label/___________
+                                        )
+
+                                    [1] => Array
+                                        (
+                                            [source] => /
+                                            [target] => /media/___________
+                                        )
+
+                                )
+
+                            [fstype] => vfat
+                            [partition_id] => 1001
+                            [total_bytes] => 2052194304
+                            [state] => mounted
+                            [disk_id] => 1000
+                        )
+
+                )
+
+            [persist_physpath] => plat-orion-ehci.0-usb-0:1.2:1.0-scsi-0:0:0:0
+            [disk_id] => 1000
+            [has_media] => 1
+        )
+
+)
+
 */
 
 ?>
