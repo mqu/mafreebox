@@ -81,6 +81,45 @@ function rrd_hourly($freebox){
 
 switch(get_arg(1, 'daily')){
 
+
+	case 'get-ejs':
+
+	$list = <<<EOF
+		tpl/conn_ddns_provider_status.ejs
+		tpl/fw_wan_redir.ejs
+		tpl/igd_redir.ejs
+		tpl/lfilter_entry.ejs
+		tpl/nas_storage_disk_advanced_informations.ejs
+		tpl/nas_storage_disk.ejs
+		tpl/nas_storage_disk_format_config.ejs
+		tpl/nas_storage_disk_format_config_simple.ejs
+		tpl/nas_storage_disk_format_confirm.ejs
+		tpl/nas_storage_disk_format_error.ejs
+		tpl/nas_storage_disk_format_progress.ejs
+		tpl/nas_storage_disk_format_success.ejs
+		tpl/nas_storage_format_confirm.ejs
+		tpl/nas_storage_format_error.ejs
+		tpl/nas_storage_format_progress.ejs
+		tpl/nas_storage_format_success.ejs
+		tpl/nas_storage_partition_fsck_config.ejs
+		tpl/nas_storage_partition_fsck_error.ejs
+		tpl/nas_storage_partition_fsck_progress.ejs
+		tpl/nas_storage_partition_fsck_result.ejs
+		tpl/nas_storage_partition_fsck_unsupported.ejs
+		tpl/net_ethsw_mac_address_table_entry.ejs
+		tpl/net_ethsw_port_state.ejs
+		tpl/net_ethsw_port_stats_counters.ejs
+EOF;
+		$list = explode("\n", $list);
+		foreach($list as $f){
+			$f = trim($f);
+			printf("%s\n", $f);
+			$content = $freebox->uri_get($f);
+			print_r($content);
+		}
+
+		break;
+
 	case 'hour': 
 	case 'hourly': 
 		rrd_hourly($freebox);
@@ -161,13 +200,20 @@ switch(get_arg(1, 'daily')){
 
 	case 'conn':
 		print_r($freebox->conn->status());
+		var_dump($freebox->conn->wan_adblock_get());
+		var_dump($freebox->conn->wan_adblock_set(false));
 		break;
 
 	case 'test': 
 	case 'debug': 
-		# $freebox->debug();
-		
 
+		# ethsw.port_state
+		# ethsw.mac_address_table
+		# ethsw.port_counters
+		# ethsw.port_set_config
+		print_r($freebox->exec('ethsw.port_state'));
+
+		# $freebox->debug();
 		# print_r($cfg = $freebox->ftp->get_config());
 		# print_r($freebox->ftp->set_config($cfg));
 

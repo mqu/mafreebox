@@ -187,6 +187,24 @@ class Mafreebox {
         return $json['result'];
     }
 
+    /**
+     * recupérer un fichier, ou plus généralement une adresse (uri) sur la freebox (hors fichiers du disque dur)
+     */
+    public function uri_get($path) {
+		$curl = new Curl();
+        $curl->set_cookie($this->cookies['cookies']);
+
+		$headers = array(
+			'Accept: */*',
+			"X-FBX-CSRF-Token: {$this->cookies['csrf']}"
+		);
+		$url = $this->uri($path);
+		print_r("url = $url\n");
+		$res = $curl->get($url, $args=array(), $headers);
+		return $res->body();
+
+	}
+
 	public function debug(){
 		# ...
 	}
