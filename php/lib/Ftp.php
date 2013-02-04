@@ -7,7 +7,7 @@ FTP : Fonctions permettant d'interagir avec le serveur FTP.
 
 Types :
 
-ftp-config
+ftp-config:
 - enabled               booléen 	Le serveur est activé ou non.
 - allow_anonymous       booléen 	Les connections anonymes sont autorisées en lecture seule.
 - allow_anonymous_write booléen 	De plus, les invitées ont le droit d'écrire.

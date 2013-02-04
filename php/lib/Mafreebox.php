@@ -55,6 +55,8 @@ $freebox->system->reboot();
  */
 
 require_once('lib/CURL.php');
+
+require_once('lib/Conn.php');
 require_once('lib/Dhcp.php');
 require_once('lib/Ftp.php');
 require_once('lib/Download.php');
@@ -91,6 +93,7 @@ class Mafreebox {
         // Connexion automatique puis récupération du cookie.
         $this->cookies = $this->login($this->login, $this->password);
 
+		$this->modules['conn']     = new Conn($this);
 		$this->modules['dhcp']     = new Dhcp($this);
 		$this->modules['download'] = new Download($this);
 		$this->modules['ftp']      = new Ftp($this);

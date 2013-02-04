@@ -136,6 +136,7 @@ switch(get_arg(1, 'daily')){
 	case 'download': 
 
 		print_r($freebox->download->_list());
+		print_r($freebox->download->config_get());
 
 		$args = array(
 			'max_up' => 90,
@@ -145,17 +146,21 @@ switch(get_arg(1, 'daily')){
 			'seed_ratio' => 2
 		);
 		# print_r($freebox->download->http_add('ubuntu.iso', 'ftp://ftp.free.fr/mirrors/ftp.ubuntu.com/releases/12.10/ubuntu-12.10-desktop-i386.iso'));
-		print_r($freebox->download->_list());
+		# print_r($freebox->download->_list());
 		$id = 849;
 		$type='http';
 		# print_r($freebox->download->stop($type, $id));
 		# print_r($freebox->download->start($type, $id));
 		# print_r($freebox->download->remove($type, $id));
 		$url = 'http://ftp.free.fr/mirrors/ftp.ubuntu.com/releases/12.10/ubuntu-12.10-desktop-armhf%2bomap4.img.torrent';
-		print_r($freebox->download->torrent_add($url));
+		# print_r($freebox->download->torrent_add($url));
 
 		# print_r($freebox->download->config_get());
 		# print_r($freebox->download->config_set($args));
+		break;
+
+	case 'conn':
+		print_r($freebox->conn->status());
 		break;
 
 	case 'test': 

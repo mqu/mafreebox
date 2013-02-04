@@ -4,12 +4,22 @@
 
 Download : Téléchargement : Gestionnaire de téléchargement ftp/http/torrent.
 
-dltype: Protocole utilisé par la tâche.
+
+types :
+
+dl-cfg:
+- max_up: int
+- download_dir : string, défaut : /Disque dur/Téléchargements
+- max_dl: int
+- max_peer: int
+- seed_ratio: int
+
+dl-type: Protocole utilisé par la tâche.
 - torrent 	Téléchargement d'un fichier torrent.
 - http 	Téléchargement d'un lien ftp.
 - ftp 	TÃéléchargement d'un lien ftp.
 
-dlstatus :
+dl-status :
 - queued 	Tâche dans la file d'attente (en attente de téléchargement, uniquement http/ftp).
 - running 	Tâche en cours de téléchargement.
 - seeding 	Tâche en cours de diffusion (uniquement torrent).
@@ -18,19 +28,19 @@ dlstatus :
 - error 	Une erreur s'est produite.
 
 torrent_opts : Paramêtres en entree:
-    opt: paramêtres pour l'ajout. Un seul de ces champs est nécessaire.
-    url (string): un lien http vers le fichier torrent.
-    magnet (string):  un lien torrent de type magnet link.
-    data (string): lLe contenu du fichier torrent, encodÃ© en base64.
+  opt: paramêtres pour l'ajout. Un seul de ces champs est nécessaire.
+  - url (string): un lien http vers le fichier torrent.
+  - magnet (string):  un lien torrent de type magnet link.
+  - data (string): lLe contenu du fichier torrent, encodÃ© en base64.
 
 task : 
 
 	id: id
-	type: voir dltype
+	type: dl-type
 	transferred: bytes transfered
 	name: filename
 	errmsg: 
-	status: voir dlstatus
+	status: dl-status
 	url: ftp://... | http://...
 	rx_rate: in bytes/s
 	size: size to download in bytes
@@ -43,8 +53,8 @@ methods :
     download.http_add(name, url)
     download.get(type, id)
     download.list->array[task]: retourne la liste des téléchargements en cours ou terminés
-    download.config_get->cfg :
-    download.config_set(cfg) :  Modifie la configuration utilisateur du module de téléchargement. 
+    download.config_get(->cfg:dl-cfg) :
+    download.config_set(cfg:dl-cfg) :  Modifie la configuration utilisateur du module de téléchargement. 
 
 	download.list()
 		Récupère la liste de tous les téléchargements en cours et terminés.
@@ -52,9 +62,9 @@ methods :
 
 	download.config_get()
 		Récupère la configuration utilisateur du module de téléchargement.
-		Retour: Un objet de type cfg.
+		Retour: Un objet de type dl-cfg.
 
-	download.config_set (cfg)
+	download.config_set (cfg:dl-cfg)
 		Modifie la configuration utilisateur du module de téléchargement.
 		Paramètres en entrée:
 
@@ -74,15 +84,6 @@ class Download{
 	public function _list(){
 		return $this->fb->exec('download.list');
 	}
-	
-	/*
-	 * Array
-		[max_up] => 90
-		[download_dir] => /Disque dur/Téléchargements
-		[max_dl] => 2000
-		[max_peer] => 240
-		[seed_ratio] => 2
-	*/
 
 	public function config_get(){
 		return $this->fb->exec('download.config_get');

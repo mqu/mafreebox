@@ -10,6 +10,16 @@ System :
 - system.reboot ([timeout]) : Redémarre la freebox (timeout = temps d'attente en secondes)
 - system.fw_release_get() : renvoie la version courante du firmware
 
+- non documentées :
+- system.rotation_set(): 
+
+a faire : récupérer les températures depuis code HTML, page "/settings.php?page=misc_system"
+
+      <li>Température CPUm : <span style="color: black;">XX °C</span></li>
+      <li>Température CPUb : <span style="color: black;">XX °C</span></li>
+      <li>Température SW : <span style="color: black;">XX °C</span></li>
+      <li>Vitesse ventilateur : <span>XXXX RPM</span></li>
+
 */
 
 class System {
