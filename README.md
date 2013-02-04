@@ -65,4 +65,5 @@ $freebox->system()->reboot();
 # php -q test-mafreebox.php
 ```
 **Documentation**
+
 Vous trouverez toute la documentation sur le Wiki github : <https://github.com/mqu/mafreebox/wiki>
