@@ -11,9 +11,11 @@ Cette API est organisée en classe de façon modulaire et couvre (couvrira) les 
 **Mafreebox** : couvre les aspects :
 - login,
 - exécution des requetes JSON,
+- interface d'accès aux différents services organisés sous forme de modules.
 
 **Modules**
 - **Account** : account basic http authentication account.unknown
+- **Conn** : informations et gestion de la connexion Internet,
 - **DHCP** : Gestion du serveur DHCP,
 - **Download** : Gestionnaire de téléchargement ftp/http/torrent.
 - **Ftp** : gestion du serveur FTP,
@@ -47,23 +49,29 @@ $contenu = $freebox->exec( 'fs.list', array('/Disque dur') );
 # ajouter un téléchargement
 $url = 'http://www..../mon-fichier.txt';
 $file = 'mon-ficher.txt';
-$freebox->download()->http_add($file, $url));
+$freebox->download->http_add($file, $url));
 
 # rebooter la freebox
-$freebox->system()->reboot();
+$freebox->system->reboot();
 
 ?>
 ```
+
+**dépendances liées à l'environnement PHP** :
+```bash
+# installation des dépendances php5 + curl
+# sudo apt-get install php5-cli php5-curl
+# php -q test-mafreebox.php
+```
+
 **mise en oeuvre** :
 
 ```bash
 # mkdir $HOME/tmp && cd $HOME/tmp
 # git clone https://github.com/mqu/mafreebox
-# cd mafreebox/php
-# installation des dépendances php5 + curl
-# sudo apt-get install php5-cli php5-curl
 # php -q test-mafreebox.php
 ```
+
 **Documentation**
 
 Vous trouverez toute la documentation sur le Wiki github : <https://github.com/mqu/mafreebox/wiki>
