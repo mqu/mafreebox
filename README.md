@@ -15,6 +15,7 @@ Cette API est organisée en classe de façon modulaire et couvre (couvrira) les 
 
 **Modules**
 - **Account** : account basic http authentication account.unknown
+- **Conn** : informations et gestion de la connexion Internet,
 - **DHCP** : Gestion du serveur DHCP,
 - **Download** : Gestionnaire de téléchargement ftp/http/torrent.
 - **Ftp** : gestion du serveur FTP,
