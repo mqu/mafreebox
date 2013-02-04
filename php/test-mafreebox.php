@@ -172,6 +172,11 @@ EOF;
 		# $cnf = $freebox->ftp->get_config($cnf);
 		break;
 
+	case 'storage': 
+		# print_r($cnf = $freebox->storage->_list());
+		print_r($cnf = $freebox->storage->disk_advanced_informations_get(0));
+		break;
+
 	case 'download': 
 
 		print_r($freebox->download->_list());
@@ -199,9 +204,9 @@ EOF;
 		break;
 
 	case 'conn':
-		print_r($freebox->conn->status());
-		var_dump($freebox->conn->wan_adblock_get());
-		var_dump($freebox->conn->wan_adblock_set(false));
+		# print_r($freebox->conn->status());
+		var_dump($freebox->conn->remote_access_get());
+		# var_dump($freebox->conn->remote_access_set(false));
 		break;
 
 	case 'test': 
