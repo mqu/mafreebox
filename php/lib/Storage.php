@@ -12,21 +12,33 @@ et périles.
 - storage.list (:storage-disk-type) : Liste tous les périphériques de stockage présent sur le NAS avec leurs partitions. 
 - storage.mount : 
 - storage.umount
-
-
 * storage.disk_advanced_informations_get
 - storage.disk_disable
 - storage.disk_format_internal
 - storage.disk_get
-* storage.format_simple
+* storage.format_simple (disk_id, fs-type, ptype, label)
 * storage.partition_fsck
 * storage.partition_get
-* storage.partition_simple
+* storage.partition_simple (exception : n'existe pas)
 - storage.disable
 
 
 types :
 
+fs-type: type du système de fichier
+- empty 	Aucun système de fichier
+- unknown 	Système de fichier inconnu
+- xfs 	XFS
+- vfat 	Microsoft FAT32
+- ext4 	Linux ext4 (ou ext2/ext3)
+- ntfs 	NTFS
+- hfs 	HFS
+- hfsplus 	HFS+
+
+ptype (partition)
+- msdos,
+- gpt
+- manual
 
 storage-disk-type : Périphérique de stockage (disque dur)
 - disk_id:int : identifiant du disque dur, nécessaire pour les opérations ciblant un périphérique en particulier
@@ -36,19 +48,12 @@ storage-disk-type : Périphérique de stockage (disque dur)
 	- enabled 	Périphérique en cours d'utilisation.
 - type
 
-	disk_bus 	Type du périphérique
-
-    total_bytes
-
-	entier 	Taille du disque en octets.
+	disk_bus: Type du périphérique
+    total_bytes :entier 	Taille du disque en octets.
 
     partitions
-
 	[ partition ] 	Partition d'un disque dur
-
-    connector
-
-	int 	Numéro du connecteur USB/eSATA sur lequel le disque est branché
+    connector:int : 	Numéro du connecteur USB/eSATA sur lequel le disque est branché
 
 
 - script JS : https://github.com/mqu/mafreebox/blob/master/doc/js/nas_storage.js
@@ -78,10 +83,18 @@ class Storage {
 				[spinning] => int (bool)
 				[active_duration] => int
 		- les durées sont en secondes.
-	*/
-
+	*/	
 	public function disk_advanced_informations_get($id){
 		return $this->fb->exec('storage.disk_advanced_informations_get', $id);
+	}
+
+	public function disk_get($id){
+		return $this->fb->exec('storage.disk_get', $id);
+	}
+
+	# exception JSON : method not found.
+	public function partition_simple($id){
+		return $this->fb->exec('storage.partition_simple', $id);
 	}
 
 	# c'est l'attribut 'disk_id' qui doit être passé à ces méthodes.
@@ -92,6 +105,7 @@ class Storage {
 		return $this->fb->exec('storage.umount', $id);
 	}
 	
+	# désactive un espace de stockage ; ce n'est pas un effacement ou formatage
 	public function disable($id){
 		return $this->fb->exec('storage.disable', $id);
 	}

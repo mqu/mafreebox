@@ -173,12 +173,18 @@ EOF;
 		break;
 
 	case 'storage': 
-		print_r($cnf = $freebox->storage->_list());
+		# print_r($cnf = $freebox->storage->_list());
 		# print_r($cnf = $freebox->storage->disk_advanced_informations_get(0));
-		print_r($cnf = $freebox->storage->mount(1001));
+		# print_r($cnf = $freebox->storage->mount(1001));
 		# print_r($cnf = $freebox->storage->partition_fsck(1001));
 		# sleep (2) ; print_r($cnf = $freebox->storage->_list());
 		# print_r($cnf = $freebox->storage->disable(1000));
+
+		# print_r($cnf = $freebox->storage->disk_get(0));
+		# print_r($cnf = $freebox->storage->disk_get(1));  # exception JSON
+		# print_r($cnf = $freebox->storage->disk_get(1001)); # exception JSON
+		# print_r($cnf = $freebox->storage->disk_get(1000)); # exception JSON
+		# print_r($cnf = $freebox->storage->partition_simple(1000)); # exception JSON : method not found.
 
 		break;
 
