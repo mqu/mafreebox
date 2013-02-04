@@ -12,6 +12,7 @@ Cette API est organisée en classe de façon modulaire et couvre (couvrira) les 
 - login,
 - exécution des requetes JSON,
 
+** Modules**
 - **Account** : account basic http authentication account.unknown
 - **DHCP** : Gestion du serveur DHCP,
 - **Download** : Gestionnaire de téléchargement ftp/http/torrent.
@@ -53,7 +54,7 @@ $freebox->system()->reboot();
 
 ?>
 ```
-mise en oeuvre :
+**mise en oeuvre** :
 
 ```bash
 # mkdir $HOME/tmp && cd $HOME/tmp
