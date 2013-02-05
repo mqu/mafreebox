@@ -60,6 +60,7 @@ require_once('lib/Conn.php');
 require_once('lib/Dhcp.php');
 require_once('lib/Download.php');
 require_once('lib/Ftp.php');
+require_once('lib/Fs.php');
 require_once('lib/Phone.php');
 require_once('lib/Storage.php');
 require_once('lib/System.php');
@@ -116,6 +117,7 @@ class Mafreebox {
 		$this->modules['dhcp']     = new Dhcp($this);
 		$this->modules['download'] = new Download($this);
 		$this->modules['ftp']      = new Ftp($this);
+		$this->modules['fs']       = new Fs($this);
 		$this->modules['system']   = new System($this);
 		$this->modules['phone']    = new Phone($this);
 		$this->modules['storage']  = new Storage($this);

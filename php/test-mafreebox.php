@@ -220,6 +220,19 @@ EOF;
 		# var_dump($freebox->conn->remote_access_set(false));
 		break;
 
+	case 'fs':
+		print_r($freebox->fs->_list('/Disque dur/Marc'));
+		# print_r($freebox->fs->_list('/Disque dur/Maxime', 'with_attr'));
+		# print_r($freebox->fs->_list('/', array('with_attr' => true)));
+
+		# $opts = array('with_attr' => 1);
+		# $args = array(
+		# 	'/Disque dur/',
+		# 	$opts
+		# );
+		# print_r($freebox->exec('fs.list', $args));
+		break;
+
 	case 'test': 
 	case 'debug': 
 
