@@ -221,16 +221,11 @@ EOF;
 		break;
 
 	case 'fs':
-		print_r($freebox->fs->_list('/Disque dur/Marc'));
-		# print_r($freebox->fs->_list('/Disque dur/Maxime', 'with_attr'));
-		# print_r($freebox->fs->_list('/', array('with_attr' => true)));
+		# print_r($freebox->fs->_list('/Disque dur/'));
+		# print_r($freebox->fs->_list('/', array('with_attr' => false))); # with_attr=true par défaut.
+		$content = $freebox->fs->get('/Disque dur/toto.txt');
+		printf("%s : %s\n", md5($content), $content);
 
-		# $opts = array('with_attr' => 1);
-		# $args = array(
-		# 	'/Disque dur/',
-		# 	$opts
-		# );
-		# print_r($freebox->exec('fs.list', $args));
 		break;
 
 	case 'test': 

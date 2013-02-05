@@ -160,8 +160,14 @@ class Mafreebox {
     }
 
 	protected function uri($cmd){
-		return  sprintf("%s/%s", $this->uri, $cmd);
+		return  $this->url_proper(sprintf("%s/%s", $this->uri, $cmd));
 		
+	}
+
+	protected function url_proper($url){
+		$url = parse_url($url);
+		$url['path'] = preg_replace("#/+#", '/', $url['path']);
+		return sprintf("%s://%s%s", $url['scheme'], $url['host'], $url['path']);
 	}
 
     /**
@@ -221,10 +227,22 @@ class Mafreebox {
 			"X-FBX-CSRF-Token: {$this->cookies['csrf']}"
 		);
 		$url = $this->uri($path);
-		print_r("url = $url\n");
 		$res = $curl->get($url, $args=array(), $headers);
 		return $res->body();
 
+	}
+
+	public function post($path, $args, $referer=null, $headers=null){
+
+		$curl = new Curl();
+        $curl->set_cookie($this->cookies['cookies']);
+		# $curl->set_verbose(true);
+
+		if($referer != null)
+			$curl->setopt(CURLOPT_REFERER, $this->uri($referer));
+
+		$url = $this->uri($path);
+		return $curl->post($url, $args);
 	}
 
 	public function debug(){

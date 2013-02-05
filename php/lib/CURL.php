@@ -109,7 +109,6 @@ class Curl
         # }
 
         curl_setopt($this->handle, CURLOPT_HTTPHEADER, $headers);
-		
 		$this->setopt(CURLOPT_URL, $url);
 
         # Determine the request method and set the correct CURL option
@@ -131,6 +130,7 @@ class Curl
         }
 
         $response = curl_exec($this->handle);
+		# printf("url : [%s] : %s\n", $method, $url) ; print_r($response);
 
         if ($response === false) {
             $this->error = curl_errno($this->handle).' - '.curl_error($this->handle);
