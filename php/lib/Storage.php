@@ -19,7 +19,7 @@ et périles.
 * storage.format_simple (disk_id, fs-type, ptype, label)
 * storage.partition_fsck
 * storage.partition_get
-* storage.partition_simple (exception : n'existe pas)
+* storage.partition_simple (exception JSON : cette méthode n'existe pas)
 - storage.disable
 
 
@@ -39,6 +39,8 @@ ptype (partition)
 - msdos,
 - gpt
 - manual
+
+
 
 storage-disk-type : Périphérique de stockage (disque dur)
 - disk_id:int : identifiant du disque dur, nécessaire pour les opérations ciblant un périphérique en particulier
@@ -109,9 +111,27 @@ class Storage {
 	public function disable($id){
 		return $this->fb->exec('storage.disable', $id);
 	}
+
+	public function disk_disable($id){
+		return $this->fb->exec('storage.disk_disable', $id);
+	}
 	
 	public function partition_fsck($id){
 		return $this->fb->exec('storage.partition_fsck', $id);
+	}
+
+	# formatage de partitions : attention à vos données !
+	# FIXME : ces 2 méthodes n'ont pas été testée !
+	#
+	# réinitialise le contenu de la Freebox (NAS) par formatage.
+	# vos données seront effacées.
+	public function disk_format_internal(){
+		return $this->fb->exec('storage.disk_format_internal');
+	}
+
+	# formatage d'un volume disque externe à la Freebox rattaché par un port USB ou eSATA.
+	public function format_simple($disk_id, $fs_type, $ptype, $label){
+		return $this->fb->exec('storage.format_simple', array($disk_id, $fs_type, $ptype, $label));
 	}
 }
 

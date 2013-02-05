@@ -58,11 +58,33 @@ require_once('lib/CURL.php');
 
 require_once('lib/Conn.php');
 require_once('lib/Dhcp.php');
-require_once('lib/Ftp.php');
 require_once('lib/Download.php');
+require_once('lib/Ftp.php');
 require_once('lib/Phone.php');
 require_once('lib/Storage.php');
 require_once('lib/System.php');
+
+
+/* modules list : les modules marqués d'un '*' sont implémentés totalement ou partiellement.
+
+    - Account : account basic http authentication account.unknown
+    * Conn : informations et gestion de la connexion Internet,
+    * DHCP : Gestion du serveur DHCP,
+    * Download : Gestionnaire de téléchargement ftp/http/torrent.
+    * Ftp : gestion du serveur FTP,
+    - Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
+    - Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
+    - Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+    - IPv6 : Fonctions permettant de configurer IPv6
+    - Lan : Fonctions permettant de configurer le réseau LAN.
+    - Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
+    * Phone : Gestion de la ligne téléphonique analogique et de la base DECT.
+    - Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage Windows de la Freebox.
+    - Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
+    * System : fonctions système de la Freebox,
+    - User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
+    - WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
+*/
 
 
 class Mafreebox {
