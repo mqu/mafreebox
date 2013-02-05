@@ -157,6 +157,25 @@ EOF;
 		# print_r($freebox->phone->reboot($timeout=60));
 		break;
 
+	case 'lan': 
+		print_r($ip = $freebox->lan->ip_address_get());
+		# print_r($freebox->lan->ip_address_set($ip));
+		break;
+
+	case 'share': 
+		print_r($ip = $freebox->share->get_config());
+		# print_r($freebox->lan->ip_address_set($ip));
+		break;
+		
+	case 'ipv6': 
+		var_dump($freebox->ipv6->config_get());
+		break;
+
+	case 'lcd': 
+		var_dump($freebox->lcd->brightness_get());
+		var_dump($freebox->lcd->brightness_set(90));
+		break;
+
 	case 'phone': 
 		# print_r($freebox->phone->fxs_ring(true)); sleep (3);
 		# var_dump($freebox->phone->fxs_ring(false));
@@ -222,10 +241,27 @@ EOF;
 
 	case 'fs':
 		# print_r($freebox->fs->_list('/Disque dur/'));
+		# print_r($freebox->fs->get_json('/Disque dur/toto.txt')); # FIXME : ne fonctionne pas : exception JSON method:fs.get : /Disque dur/... : not found
 		# print_r($freebox->fs->_list('/', array('with_attr' => false))); # with_attr=true par défaut.
-		$content = $freebox->fs->get('/Disque dur/toto.txt');
-		printf("%s : %s\n", md5($content), $content);
-
+		# $content = $freebox->fs->get('/Disque dur/toto.txt'); printf("%s : \n''%s''", md5($content), $content);
+		
+		$from = '/Disque dur/test/toto.txt';
+		$to = '/Disque dur/test/tutu.txt';
+		var_dump($freebox->fs->copy($from, $to));
+		print_r($freebox->fs->_list('/Disque dur/test'));
+		sleep(1);
+		print_r($freebox->fs->_list('/Disque dur/test'));
+		echo "remove titi.txt, tutu.txt\n";
+		var_dump($freebox->fs->remove('/Disque dur/test/tutu.txt'));
+		
+		# fichier non existant
+		try{
+			var_dump($freebox->fs->remove('/Disque dur/test/not-found.txt'));
+		}catch (Exception $e){
+			printf("erreur : %s\n", $e->getMessage());
+		}
+		sleep(1);
+		print_r($freebox->fs->_list('/Disque dur/test'));		
 		break;
 
 	case 'test': 
@@ -235,7 +271,7 @@ EOF;
 		# ethsw.mac_address_table
 		# ethsw.port_counters
 		# ethsw.port_set_config
-		print_r($freebox->exec('ethsw.port_state'));
+		print_r($freebox->exec('account.unknown'));
 
 		# $freebox->debug();
 		# print_r($cfg = $freebox->ftp->get_config());

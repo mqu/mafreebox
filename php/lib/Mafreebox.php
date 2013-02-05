@@ -64,6 +64,7 @@ require_once('lib/Fs.php');
 require_once('lib/Phone.php');
 require_once('lib/Storage.php');
 require_once('lib/System.php');
+require_once('lib/Misc.php');  # regroupe Lan, Share, User, Ldc, IpV6
 
 
 /* modules list : les modules marqués d'un '*' sont implémentés totalement ou partiellement.
@@ -73,17 +74,17 @@ require_once('lib/System.php');
     * DHCP : Gestion du serveur DHCP,
     * Download : Gestionnaire de téléchargement ftp/http/torrent.
     * Ftp : gestion du serveur FTP,
-    - Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
+    * Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
     - Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
     - Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
-    - IPv6 : Fonctions permettant de configurer IPv6
-    - Lan : Fonctions permettant de configurer le réseau LAN.
-    - Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
+    * IPv6 : Fonctions permettant de configurer IPv6
+    * Lan : Fonctions permettant de configurer le réseau LAN.
+    * Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
     * Phone : Gestion de la ligne téléphonique analogique et de la base DECT.
-    - Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage Windows de la Freebox.
-    - Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
+    * Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage Windows de la Freebox.
+    * Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
     * System : fonctions système de la Freebox,
-    - User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
+    * User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
     - WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
 */
 
@@ -118,9 +119,14 @@ class Mafreebox {
 		$this->modules['download'] = new Download($this);
 		$this->modules['ftp']      = new Ftp($this);
 		$this->modules['fs']       = new Fs($this);
+		$this->modules['ipv6']     = new IPv6($this);
+		$this->modules['lan']      = new Lan($this);
+		$this->modules['lcd']      = new Lcd($this);
 		$this->modules['system']   = new System($this);
 		$this->modules['phone']    = new Phone($this);
+		$this->modules['share']    = new Share($this);
 		$this->modules['storage']  = new Storage($this);
+		$this->modules['user']     = new User($this);
     }
 
     /**
@@ -190,7 +196,7 @@ class Mafreebox {
 		));
 
 		$headers = array(
-            'Content-Type: application/json',
+            'Content-Type: application/json; charset=utf-8',
 			'Accept: application/json, text/javascript, */*',
 			"X-FBX-CSRF-Token: {$this->cookies['csrf']}"
 		);
@@ -262,19 +268,6 @@ class Mafreebox {
 Account : account basic http authentication
     account.unknown
 
-Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
-    fs.list
-    fs.get
-    fs.operation_progress
-    fs.operation_list
-    fs.abort
-    fs.set_password
-    fs.move
-    fs.copy
-    fs.remove
-    fs.unpack
-    fs.mkdir
-
 Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
     fw.wan_redirs_get
     fw.wan_range_redirs_get
@@ -296,36 +289,7 @@ Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway
     igd.redirs_get
     igd.redir_del
 
-IPv6 : Fonctions permettant de configurer IPv6
-    ipv6.config_get
-    ipv6.config_set
 
-Lan : Fonctions permettant de configurer le réseau LAN.
-    lan.ip_address_get
-    lan.ip_address_set
-
-Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
-    lcd.brightness_get
-    lcd.brightness_set
-
-
-Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage windows de la freebox.
-    share.get_config
-    share.set_config
-
-Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectÃ©s au NAS.
-    storage.list
-    storage.disk_get
-    storage.disk_format_internal
-    storage.disk_disable
-    storage.mount
-    storage.umount
-    storage.disable
-
-User : Utilisateurs : Permet de modifier les paramÃ¨tres utilisateur du boÃ®tier NAS.
-    user.password_reset
-    user.password_set
-    user.password_check_quality
 
 WiFi : Fonctions permettant de paramÃ©trer le rÃ©seau sans-fil.
     wifi.status_get

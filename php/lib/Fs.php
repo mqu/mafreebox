@@ -4,6 +4,7 @@
 
 Fs : Fonctions permettant de lister et de gérer les fichiers du NAS.
 
+méthodes JSON :
 - fs.list(dir, opt) : liste les fichiers d'un répertoire donné. 
 - fs.get(file [, opt]) : récupère les données d'un fichier sur le disque. 
 - fs.operation_progress(id) : récupère l'état d'une tâche asynchrone en cours. 
@@ -16,9 +17,54 @@ Fs : Fonctions permettant de lister et de gérer les fichiers du NAS.
 - fs.unpack(archive [, destination]): Décompresse une archive dans le répertoire. Si le répertoire de destination n'est pas renseigné, décompresse dans le répertoire ou se trouve l'archive. 
 - fs.mkdir(path): Crée un répertoire sous /media étant donné son chemin 
 
+correspondance methodes :
+- _list() -> fs.list
+- get() -> POST /get.php {filename=....},
+- get_json -> fs.get
+- autres méthodes : nom identique.
+
+méthodes supplémentaire via classe FsExtra :
+- mirror($dir),
+- save($file),
+- find($expr),
+- file_exists($path),
+
 */
 
-class Fs {
+class FsExtra{
+
+	public function mirror($dir){
+		
+		$files = $this->ls($dir);
+
+		foreach($files as $file){
+			if($file->type != 'file')
+				continue;
+
+			if(!file_exists($file->name)){
+				$this->save($dir . '/' . $file->name);
+				printf("- file copied : %s\n", $file->name);
+			}
+			else
+				printf("# file not copied : %s\n", $file->name);
+		}
+	}
+
+	public function save($file){
+		$data = $this->get($file);
+		file_put_contents(basename($file), $data);
+	}
+	
+	public function find($expr){
+	}
+	
+	public function file_exists($path){
+
+	}
+}
+
+
+class Fs extends FsExtra{
 	protected $fb;
 	public function __construct($fb){
 		$this->fb = $fb;
@@ -126,5 +172,42 @@ class Fs {
 		return $this->fb->exec('fs.operation_list');
 	}
 
+	# fs.abort(id) : tue une tâche en cours
+	public function abort($id){
+		return $this->fb->exec('fs.abord', $id);
+	}
+	
+	# fs.set_password(id, password) : fourni un mot de passe à l'opération asynchrone le requérant. La tâche doit être dans l'état 'waiting_password'. 
+	public function set_password($id, $passwd){
+		return $this->fb->exec('fs.set_password', array($id, $passwd));
+	}
+	
+	# fs.move(from, to): déplace un ou des fichiers vers un nouveau répertoire.
+	public function move($from, $to){
+		return $this->fb->exec('fs.move', array($from, $to));
+	}
+	
+	# - fs.copy(from, to): copie un ou des fichiers vers un nouveau répertoire. 
+	public function copy($from, $to){
+		return $this->fb->exec('fs.copy', array($from, $to));
+	}
+	# - fs.remove(path): supprime définitivement un ou des fichiers. 
+	public function remove($path){
+		return $this->fb->exec('fs.remove', $path);
+	}
+
+	# - fs.unpack(archive [, destination]): Décompresse une archive dans le répertoire. Si le répertoire de destination n'est pas renseigné, décompresse dans le répertoire ou se trouve l'archive. 
+	public function unpack($arch, $dest=null){
+		if($dest == null)
+			return $this->fb->exec('fs.unpack', $arch);
+		else
+			return $this->fb->exec('fs.unpack', array($arch, $dest));		
+	}
+
+	# - fs.mkdir(path): Crée un répertoire sous /media étant donné son chemin 
+	public function mkdir($path){
+		return $this->fb->exec('fs.mkdir', $path);
+	}
 }
+
 ?>
