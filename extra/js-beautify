@@ -1633,7 +1633,7 @@ if(!$file) exit(0);
 
 $jsbeautifier = new JSBeautifier();
 $result = $jsbeautifier->beautify(file_get_contents($file), $opts);
-print_r($result);
+echo $result;
 
 
 ?>
