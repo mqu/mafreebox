@@ -64,7 +64,9 @@ require_once('lib/Fs.php');
 require_once('lib/Phone.php');
 require_once('lib/Storage.php');
 require_once('lib/System.php');
-require_once('lib/Misc.php');  # regroupe Lan, Share, User, Ldc, IpV6
+require_once('lib/Wifi.php');
+
+require_once('lib/Misc.php');  # regroupe Lan, Share, User, Ldc, IpV6, Igd
 
 
 /* modules list : les modules marqués d'un '*' sont implémentés totalement ou partiellement.
@@ -85,7 +87,7 @@ require_once('lib/Misc.php');  # regroupe Lan, Share, User, Ldc, IpV6
     * Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
     * System : fonctions système de la Freebox,
     * User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
-    - WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
+    * WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
 */
 
 
@@ -120,6 +122,7 @@ class Mafreebox {
 		$this->modules['ftp']      = new Ftp($this);
 		$this->modules['fs']       = new Fs($this);
 		$this->modules['ipv6']     = new IPv6($this);
+		$this->modules['igd']      = new Igd($this);
 		$this->modules['lan']      = new Lan($this);
 		$this->modules['lcd']      = new Lcd($this);
 		$this->modules['system']   = new System($this);
@@ -127,6 +130,7 @@ class Mafreebox {
 		$this->modules['share']    = new Share($this);
 		$this->modules['storage']  = new Storage($this);
 		$this->modules['user']     = new User($this);
+		$this->modules['wifi']     = new Wifi($this);
     }
 
     /**
@@ -282,23 +286,6 @@ Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
     fw.lfilters_get
     fw.lfilter_add
     fw.lfilter_del
-
-Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
-    igd.config_get
-    igd.config_set
-    igd.redirs_get
-    igd.redir_del
-
-
-
-WiFi : Fonctions permettant de paramÃ©trer le rÃ©seau sans-fil.
-    wifi.status_get
-    wifi.config_get
-    wifi.ap_params_set
-    wifi.bss_params_set
-    wifi.mac_filter_add
-    wifi.mac_filter_del
-    wifi.stations_get
 
 */
 

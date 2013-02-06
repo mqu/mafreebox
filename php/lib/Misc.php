@@ -2,12 +2,13 @@
 
 /* author : Marc Quinton, février 2013, licence : http://fr.wikipedia.org/wiki/WTFPL 
 
-type:
+types:
+
 ipv6-cnf:
 - enabled : bool (true, false)
 
 IPv6 : Fonctions permettant de configurer IPv6
-    ipv6.config_get:ipv6-cnf
+    ipv6.config_get():ipv6-cnf
     ipv6.config_set(ipv6-cnf)
 
 */
@@ -26,10 +27,42 @@ class IPv6 {
 		return $this->fb->exec('ipv6.config_set', $cnf);
 	}
 }
+/*
+ Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+    igd.config_get():igd-cnf :  Retourne la configuration courante. 
+    igd.config_set(igd-cnf) :  Applique la configuration. 
+    igd.redirs_get() :  Liste les redirections de ports créees par UPnP 
+    igd.redir_del(ext_src_ip, ext_port, proto) :  Supprime une redirection. 
+    * 
+
+types:
+
+igd-cnf:
+- enabled: boolean
+
+*/
+
+class Igd {
+	protected $fb;
+
+	public function __construct($fb){
+		$this->fb = $fb;
+	}
+
+	public function config_get(){
+		return $this->fb->exec('igd.config_get');
+	}
+	public function config_set($cnf){
+		return $this->fb->exec('igd.config_set', $cnf);
+	}
+	public function redirs_get(){
+		return $this->fb->exec('igd.redirs_get');
+	}
+}
 
 /*
 Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
-    lcd.brightness_get:int (pourcentage)
+    lcd.brightness_get():int (pourcentage)
     lcd.brightness_set(value:int)
 */
 

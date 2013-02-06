@@ -161,6 +161,11 @@ EOF;
 		print_r($ip = $freebox->lan->ip_address_get());
 		# print_r($freebox->lan->ip_address_set($ip));
 		break;
+		
+	case 'wifi': 
+		print_r($ip = $freebox->wifi->config_get());
+		print_r($ip = $freebox->wifi->status_get());
+		break;
 
 	case 'share': 
 		print_r($ip = $freebox->share->get_config());
@@ -169,6 +174,11 @@ EOF;
 		
 	case 'ipv6': 
 		var_dump($freebox->ipv6->config_get());
+		break;
+
+	case 'igd': 
+		# print_r($freebox->igd->config_get());
+		print_r($freebox->igd->redirs_get());
 		break;
 
 	case 'lcd': 
