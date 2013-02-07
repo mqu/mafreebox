@@ -6,7 +6,7 @@
 Phone : Téléphonie : Contrôle de la ligne téléphonique analogique et de la base DECT.
 
 todo : 
-- exploiter le journal des appels au format HTML et l'exporter dans un format utilisable (xml, csv, ...)
+- exploiter le journal des appels au format HTML et l'exporter dans un format utilisable (xml, csv, ...) /done.
 
 methods :
 
@@ -17,7 +17,22 @@ methods :
     phone.dect_params_set(params) : Modifie les réglages d'enregistrement dect DECT 
     phone.dect_delete(id): Supprime les associations de tous les satellites de la base DECT de la freebox. 
 
+extra-methods :
+
+- Phone::logs() : retourne la liste des appels téléphonique sous forme :
+	array:
+	 - calls(list : log-record) : liste des appels passés.
+	 - received(list : log-record) : liste des appels recus
+
+
 data types :
+
+log-record:
+- [date] => string : date et heure
+- [name] => phone number or name
+- [number] => phone-number
+- [duration] => durée ou appel manqué
+
 
 fxs-status:
 - initializing 	En cours d'initialisation.
@@ -65,9 +80,7 @@ phone-status :
 
 */
 
-
 require('lib/simplehtmldom.php'); # parser HTML
-
 
 class Phone {
 	protected $fb;
