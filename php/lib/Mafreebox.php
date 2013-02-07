@@ -61,6 +61,7 @@ require_once('lib/Dhcp.php');
 require_once('lib/Download.php');
 require_once('lib/Ftp.php');
 require_once('lib/Fs.php');
+require_once('lib/Fw.php');
 require_once('lib/Phone.php');
 require_once('lib/Storage.php');
 require_once('lib/System.php');
@@ -71,14 +72,14 @@ require_once('lib/Misc.php');  # regroupe Lan, Share, User, Ldc, IpV6, Igd
 
 /* modules list : les modules marqués d'un '*' sont implémentés totalement ou partiellement.
 
-    - Account : account basic http authentication account.unknown
+    - Account : account basic http authentication : rien de précis sur ce module dans l'API JSON ...
     * Conn : informations et gestion de la connexion Internet,
     * DHCP : Gestion du serveur DHCP,
     * Download : Gestionnaire de téléchargement ftp/http/torrent.
     * Ftp : gestion du serveur FTP,
     * Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
-    - Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
-    - Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+    * Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
+    * Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
     * IPv6 : Fonctions permettant de configurer IPv6
     * Lan : Fonctions permettant de configurer le réseau LAN.
     * Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
@@ -121,6 +122,7 @@ class Mafreebox {
 		$this->modules['download'] = new Download($this);
 		$this->modules['ftp']      = new Ftp($this);
 		$this->modules['fs']       = new Fs($this);
+		$this->modules['fw']       = new Fw($this);
 		$this->modules['ipv6']     = new IPv6($this);
 		$this->modules['igd']      = new Igd($this);
 		$this->modules['lan']      = new Lan($this);
@@ -271,21 +273,6 @@ class Mafreebox {
 
 Account : account basic http authentication
     account.unknown
-
-Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
-    fw.wan_redirs_get
-    fw.wan_range_redirs_get
-    fw.wan_redir_del
-    fw.wan_range_redir_del
-    fw.wan_redir_add
-    fw.wan_range_redir_add
-    fw.dmz_get
-    fw.dmz_set
-    fw.lfilter_config_get
-    fw.lfilter_config_set
-    fw.lfilters_get
-    fw.lfilter_add
-    fw.lfilter_del
 
 */
 

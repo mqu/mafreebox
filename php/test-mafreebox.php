@@ -180,6 +180,14 @@ EOF;
 		# print_r($freebox->igd->config_get());
 		print_r($freebox->igd->redirs_get());
 		break;
+		
+	case 'fw': 
+		print_r($freebox->fw->wan_redirs_get());
+		print_r($freebox->fw->wan_range_redirs_get());
+		print_r($freebox->fw->dmz_get());
+		print_r($freebox->fw->lfilter_config_get());
+		print_r($freebox->fw->lfilters_get());
+		break;
 
 	case 'lcd': 
 		var_dump($freebox->lcd->brightness_get());
