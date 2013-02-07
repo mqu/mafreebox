@@ -61,7 +61,6 @@ $freebox->system->reboot();
 ```bash
 # installation des dépendances php5 + curl
 # sudo apt-get install php5-cli php5-curl
-# php -q test-mafreebox.php
 ```
 
 **mise en oeuvre** :
@@ -69,7 +68,7 @@ $freebox->system->reboot();
 ```bash
 # mkdir $HOME/tmp && cd $HOME/tmp
 # git clone https://github.com/mqu/mafreebox
-# php -q test-mafreebox.php
+# cd mafreebox/php ; php -q test-mafreebox.php
 ```
 
 **Documentation**

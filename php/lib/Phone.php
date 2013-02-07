@@ -1,8 +1,12 @@
 <?php
 
+
 /* author : Marc Quinton, février 2013, licence : http://fr.wikipedia.org/wiki/WTFPL 
 
 Phone : Téléphonie : Contrôle de la ligne téléphonique analogique et de la base DECT.
+
+todo : 
+- exploiter le journal des appels au format HTML et l'exporter dans un format utilisable (xml, csv, ...)
 
 methods :
 
@@ -61,6 +65,10 @@ phone-status :
 
 */
 
+
+require('lib/simplehtmldom.php'); # parser HTML
+
+
 class Phone {
 	protected $fb;
 	public function __construct($fb){
@@ -92,6 +100,43 @@ class Phone {
 	# Supprime les associations de (tous?) les satellites de la base DECT de la freebox. 
 	public function dect_delete($id){
 		return $this->fb->exec('phone.dect_delete', $id);
+	}
+	
+	# retourne le journal des appels recus et émis.
+	public function logs(){
+		$html =new simple_html_dom($this->fb->uri_get('/settings.php?page=phone_calls'));
+		$list =array(
+			'calls'    => array(),
+			'received' => array()
+		);
+		/* XPATH 
+		 * appels : /html/body/div[4]/div[3]/table - class bloc  -> //table.bloc/tr (matche un table de class "bloc" / chaque ligne "<tr>"
+		 * recus :  /html/body/div[4]/div[3]/table[2] - class bloc
+		 */
+		# $tr = $html->find("/html/body/div[4]/div[3]/table[2]/tr"); # recus
+		$tr = $html->find("//table.bloc/tr");  # les appels
+		foreach($tr as $hr){
+			$td = $hr->find('td');
+			$list['calls'][] = array(
+				'date'     => $td[0]->innertext,
+				'name'     => $td[1]->innertext,
+				'number'   => $td[2]->innertext,
+				'duration' => $td[3]->innertext,
+			);
+		}
+
+		$tr = $html->find("//table[2].bloc/tr");  # les appels
+		foreach($tr as $hr){
+			$td = $hr->find('td');
+			$list['received'][] = array(
+				'date'     => $td[0]->innertext,
+				'name'     => $td[1]->innertext,
+				'number'   => $td[2]->innertext,
+				'duration' => $td[3]->innertext,
+			);
+		}
+		
+		return($list);
 	}
 }
 

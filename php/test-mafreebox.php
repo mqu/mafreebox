@@ -197,7 +197,8 @@ EOF;
 	case 'phone': 
 		# print_r($freebox->phone->fxs_ring(true)); sleep (3);
 		# var_dump($freebox->phone->fxs_ring(false));
-		print_r($freebox->phone->status());
+		# print_r($freebox->phone->status());
+		print_r($freebox->phone->logs());
 		break;
 
 	case 'ftp': 

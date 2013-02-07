@@ -179,7 +179,12 @@ class Mafreebox {
 	protected function url_proper($url){
 		$url = parse_url($url);
 		$url['path'] = preg_replace("#/+#", '/', $url['path']);
-		return sprintf("%s://%s%s", $url['scheme'], $url['host'], $url['path']);
+
+		if(isset($url['query'])){
+			return sprintf("%s://%s%s?%s", $url['scheme'], $url['host'], $url['path'], $url['query']);
+		} else{
+			return sprintf("%s://%s%s", $url['scheme'], $url['host'], $url['path']);
+		}
 	}
 
     /**
