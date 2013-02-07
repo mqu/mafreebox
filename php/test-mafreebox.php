@@ -64,18 +64,18 @@ $freebox = new Mafreebox($config['url'], $config['user'], $config['password']);
 */
 
 function rrd_daily($freebox){
-	$f = 'rrd-rate-day-up.png';   file_rotate("$f", 31); file_put_contents("var/$f", $freebox->rrd_graph($type='rate', $period='day', $dir='up'));
-	$f = 'rrd-rate-day-down.png'; file_rotate("$f", 31); file_put_contents("var/$f", $freebox->rrd_graph($type='rate', $period='day', $dir='down'));
-	$f = 'rrd-snr-day.png';       file_rotate("$f", 31); file_put_contents("var/$f", $freebox->rrd_graph($type='snr',  $period='day'));
+	$f = 'rrd-rate-day-up.png';   file_rotate("$f", 31); file_put_contents("var/$f", $freebox->rrd->graph($type='rate', $period='day', $dir='up'));
+	$f = 'rrd-rate-day-down.png'; file_rotate("$f", 31); file_put_contents("var/$f", $freebox->rrd->graph($type='rate', $period='day', $dir='down'));
+	$f = 'rrd-snr-day.png';       file_rotate("$f", 31); file_put_contents("var/$f", $freebox->rrd->graph($type='snr',  $period='day'));
 }
 
 function rrd_hourly($freebox){
-	# $f = 'rrd-rate-hourly-up.png';   file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd_graph($type='rate', $period='hour', $dir='up'));
-	$f = 'rrd-rate-hourly-down.png'; file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd_graph($type='rate', $period='hour', $dir='down'));
-	# $f = 'rrd-snr-hourly.png';       file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd_graph($type='snr',  $period='hour'));
+	# $f = 'rrd-rate-hourly-up.png';   file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd->graph($type='rate', $period='hour', $dir='up'));
+	$f = 'rrd-rate-hourly-down.png'; file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd->graph($type='rate', $period='hour', $dir='down'));
+	# $f = 'rrd-snr-hourly.png';       file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd->graph($type='snr',  $period='hour'));
 
-	# $f = 'rrd-wan-rate-hourly-up.png';   file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd_graph($type='wan-rate', $period='hour', $dir='up'));
-	# $f = 'rrd-wan-rate-hourly-down.png'; file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd_graph($type='wan-rate', $period='hour', $dir='down'));
+	# $f = 'rrd-wan-rate-hourly-up.png';   file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd->graph($type='wan-rate', $period='hour', $dir='up'));
+	# $f = 'rrd-wan-rate-hourly-down.png'; file_rotate("$f", 24); file_put_contents("var/$f", $freebox->rrd->graph($type='wan-rate', $period='hour', $dir='down'));
 
 }
 
@@ -139,7 +139,9 @@ EOF;
 	case 'json':
 	case 'json-exec':
 	case 'exec':
-		print_r($freebox->exec('conn.status'));
+		# print_r($freebox->exec('conn.status'));
+		if($arg = get_arg(2, false))
+			print_r($freebox->exec($arg));
 		break;
 
 	case 'dhcp': 
@@ -192,6 +194,10 @@ EOF;
 	case 'lcd': 
 		var_dump($freebox->lcd->brightness_get());
 		var_dump($freebox->lcd->brightness_set(90));
+		break;
+
+	case 'rrd-test': 
+		print_r($freebox->rrd->graph($type='rate', $period='day', $dir='up'));
 		break;
 
 	case 'phone': 
@@ -290,8 +296,10 @@ EOF;
 		# ethsw.mac_address_table
 		# ethsw.port_counters
 		# ethsw.port_set_config
-		print_r($freebox->exec('account.unknown'));
-
+		# print_r($freebox->exec('account.unknown'));
+		# print_r($freebox->exec('upnpav.get_config'));
+		print_r($freebox->exec('fbxrop.config_get'));
+		
 		# $freebox->debug();
 		# print_r($cfg = $freebox->ftp->get_config());
 		# print_r($freebox->ftp->set_config($cfg));

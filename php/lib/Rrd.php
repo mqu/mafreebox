@@ -28,31 +28,34 @@ RRD : extraction des graph RRD (connexion ADSL, signal/bruit, download)
  */
 
 class RRD {
+	protected $fb;
 
-    public function rrd_graph($type = 'down', $period = 'day', $dir = 'down') {
+	public function __construct($fb){
+		$this->fb = $fb;
+	}
+
+    public function graph($type = 'down', $period = 'day', $dir = 'down') {
         $geometry = 'w=1000&h=200';
         $colors   = '&color1=00ff00&color2=ff0000';
         $extra    = $geometry . $colors;
-        
+        $cgi = 'rrd.cgi';
+
         switch ($type) {
             case 'snr':
                 $db  = 'fbxdsl';
                 $dir = ''; # not available here
-                $url = sprintf("%s?db=%s&type=snr&%s&period=%s", $this->uri('rrd.cgi'), $db, $extra, $period);
+                $uri = sprintf("%s?db=%s&type=snr&%s&period=%s", $cgi, $db, $extra, $period);
                 break;
             case 'rate':
                 $db  = 'fbxdsl';
-                $url = sprintf("%s?db=%s&type=rate&dir=%s&%s&period=%s", $this->uri('rrd.cgi'), $db, $dir, $extra, $period);
+                $uri = sprintf("%s?db=%s&type=rate&dir=%s&%s&period=%s", $cgi, $db, $dir, $extra, $period);
                 break;
             case 'wan-rate':
                 $db  = 'fbxconnman';
-                $url = sprintf("%s?db=%s&dir=%s&period=%s&%s", $this->uri('rrd.cgi'), $db, $dir, $period, $extra);
+                $uri = sprintf("%s?db=%s&dir=%s&period=%s&%s", $cgi, $db, $dir, $period, $extra);
                 break;
         }
-        
-        $curl = new CURL();
-        $curl->set_cookie('FBXSID=' . $this->cookies['cookies']);
-        return $curl->get($url)->body();
+        return $this->fb->uri_get($uri);
     }
 }
 ?>

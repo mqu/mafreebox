@@ -68,6 +68,7 @@ require_once('lib/System.php');
 require_once('lib/Wifi.php');
 
 require_once('lib/Misc.php');  # regroupe Lan, Share, User, Ldc, IpV6, Igd
+require_once('lib/Rrd.php');  # regroupe Lan, Share, User, Ldc, IpV6, Igd
 
 
 /* modules list : les modules marqués d'un '*' sont implémentés totalement ou partiellement.
@@ -133,6 +134,9 @@ class Mafreebox {
 		$this->modules['storage']  = new Storage($this);
 		$this->modules['user']     = new User($this);
 		$this->modules['wifi']     = new Wifi($this);
+		
+		# extra functions or modules
+		$this->modules['rrd']      = new RRD($this);
     }
 
     /**
