@@ -49,6 +49,9 @@ class FsExtra{
 				printf("# file not copied : %s\n", $file->name);
 		}
 	}
+	public function ls($dir){
+		return $this->_list($dir);
+	}
 
 	public function save($file){
 		$data = $this->get($file);
