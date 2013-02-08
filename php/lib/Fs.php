@@ -111,9 +111,11 @@ class Fs {
 		return $res->body(); 
 	}
 
+
+	# error 404 : put.cgi not found. No way to put ... so bad.
 	public function put($file){
 
-		# http://mafreebox.fr/get.php avec le paramètre POST « filename=/Disque dur/chemin/vers/le/fichier ». 
+		# http://mafreebox.fr/put.php avec le paramètre POST « filename=/Disque dur/chemin/vers/le/fichier ». 
 		$args = array(
 		  'filename' =>  $file,
 		  'dest' =>  '/Disque dur/',
