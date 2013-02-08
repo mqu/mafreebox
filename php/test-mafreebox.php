@@ -265,6 +265,7 @@ EOF;
 		break;
 
 	case 'fs':
+		print_r($freebox->fs->put('/etc/passwd/')); exit(0);
 		# print_r($freebox->fs->_list('/Disque dur/'));
 		# print_r($freebox->fs->get_json('/Disque dur/toto.txt')); # FIXME : ne fonctionne pas : exception JSON method:fs.get : /Disque dur/... : not found
 		# print_r($freebox->fs->_list('/', array('with_attr' => false))); # with_attr=true par défaut.
@@ -287,6 +288,10 @@ EOF;
 		}
 		sleep(1);
 		print_r($freebox->fs->_list('/Disque dur/test'));		
+		break;
+
+	case 'unix':
+		print_r($freebox->fs->ls('/Disque dur/Enregistrements'));
 		break;
 
 	case 'test': 

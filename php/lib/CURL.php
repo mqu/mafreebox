@@ -139,7 +139,10 @@ class Curl
         } else {
             $response = new CurlResponse($response);
         }
-        # curl_close($this->handle);
+
+        if($response->headers()['Status-Code'] >= 400){
+			throw new Exception(sprintf("erreur : [%s]:%s", $response->headers()['Status-Code'], $response->headers()['Status']));
+		}
         return $response;
     }
 }

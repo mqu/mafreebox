@@ -23,51 +23,17 @@ correspondance methodes :
 - get_json -> fs.get
 - autres méthodes : nom identique.
 
-méthodes supplémentaire via classe FsExtra :
+méthodes supplémentaire via classe FsUnix :
 - mirror($dir),
 - save($file),
 - find($expr),
 - file_exists($path),
+- ls($path) : alias sur Fs::_list()
 
 */
 
-class FsExtra{
 
-	public function mirror($dir){
-		
-		$files = $this->ls($dir);
-
-		foreach($files as $file){
-			if($file->type != 'file')
-				continue;
-
-			if(!file_exists($file->name)){
-				$this->save($dir . '/' . $file->name);
-				printf("- file copied : %s\n", $file->name);
-			}
-			else
-				printf("# file not copied : %s\n", $file->name);
-		}
-	}
-	public function ls($dir){
-		return $this->_list($dir);
-	}
-
-	public function save($file){
-		$data = $this->get($file);
-		file_put_contents(basename($file), $data);
-	}
-	
-	public function find($expr){
-	}
-	
-	public function file_exists($path){
-
-	}
-}
-
-
-class Fs extends FsExtra{
+class Fs {
 	protected $fb;
 	public function __construct($fb){
 		$this->fb = $fb;
@@ -145,6 +111,18 @@ class Fs extends FsExtra{
 		return $res->body(); 
 	}
 
+	public function put($file){
+
+		# http://mafreebox.fr/get.php avec le paramètre POST « filename=/Disque dur/chemin/vers/le/fichier ». 
+		$args = array(
+		  'filename' =>  $file,
+		  'dest' =>  '/Disque dur/',
+		);
+
+		$res = $this->fb->post('/put.php', $args, $refer='/explorer.php');
+		return $res->body(); 
+	}
+
 
 	/*
 		fs.operation_progress (id)
@@ -210,6 +188,64 @@ class Fs extends FsExtra{
 	# - fs.mkdir(path): Crée un répertoire sous /media étant donné son chemin 
 	public function mkdir($path){
 		return $this->fb->exec('fs.mkdir', $path);
+	}
+}
+
+/* 
+ * commandes Unixlike :
+ *  - ls, rm, cp,
+ *  - mirror
+ *  - ...
+ */
+class FsUnix extends Fs{
+
+	public function ls($dir){
+		return $this->_list($dir);
+	}
+	
+	public function cp($from, $to){
+		return $this->copy($from, $to);
+	}
+
+	public function mv($from, $to){
+		return $this->move($from, $to);
+	}
+
+	public function rm($path){
+		return $this->remove($path);
+	}
+
+	public function save($file){
+		$data = $this->get($file);
+		file_put_contents(basename($file), $data);
+	}
+
+	public function mirror($dir){
+		
+		$files = $this->ls($dir);
+
+		foreach($files as $file){
+			if($file->type != 'file')
+				continue;
+
+			if(!file_exists($file->name)){
+				$this->save($dir . '/' . $file->name);
+				printf("- file copied : %s\n", $file->name);
+			}
+			else
+				printf("# file not copied : %s\n", $file->name);
+		}
+	}
+	
+	public function find($expr){
+	}
+	
+	public function file_exists($path){
+
+	}
+
+	public function is_file($path){
+
 	}
 }
 

@@ -60,7 +60,7 @@ require_once('lib/Conn.php');
 require_once('lib/Dhcp.php');
 require_once('lib/Download.php');
 require_once('lib/Ftp.php');
-require_once('lib/Fs.php');
+require_once('lib/Fs.php');  # + FsUnix (extension)
 require_once('lib/Fw.php');
 require_once('lib/Phone.php');
 require_once('lib/Storage.php');
@@ -137,6 +137,7 @@ class Mafreebox {
 		
 		# extra functions or modules
 		$this->modules['rrd']      = new RRD($this);
+		$this->modules['unix']     = new FsUnix($this);
     }
 
     /**
