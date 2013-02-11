@@ -291,7 +291,17 @@ EOF;
 		break;
 
 	case 'unix':
-		print_r($freebox->fs->ls('/Disque dur/Enregistrements'));
+		$list = $freebox->unix->ls('/Disque dur/test2');
+		foreach($list as $e){
+			printf("%s/%s (%s)\n", $e->dir, $e->name, $e->path);
+		}
+		break;
+
+	case 'unix-oo':
+		# object-oriented way.
+		# $dir = $freebox->unix->ls('/Disque dur/');
+		# $dir->cp('/local/path');
+		# $dir->rm();
 		break;
 
 	case 'test': 

@@ -201,8 +201,26 @@ class Fs {
  */
 class FsUnix extends Fs{
 
-	public function ls($dir){
-		return $this->_list($dir);
+	# expr fonctionne de la même manière que la fonction php glob :
+	# - * remplace n'importe quel caractère.
+	#
+	public function ls($dir, $expr='*', $opts=array('with_attr'=>true)){
+		$expr = str_replace('.', '\.', $expr);
+		$expr = str_replace('*', '.*', $expr);
+		
+		$list = $this->_list($dir, $opts);
+		
+		foreach($list as $key=>$rec){
+			if(preg_match("#$expr#i", $rec['name'])){
+				$rec['dir'] = $dir;
+				if($rec['type'] == 'dir')
+					$list2[] = new FsDir($this->fb, $rec);
+				else
+					$list2[] = new FsEntry($this->fb, $rec);
+			}
+		}
+		
+		return $list2;
 	}
 	
 	public function cp($from, $to){
@@ -239,7 +257,7 @@ class FsUnix extends Fs{
 		}
 	}
 	
-	public function find($expr){
+	public function find($dir, $expr){
 	}
 	
 	public function file_exists($path){
@@ -249,6 +267,83 @@ class FsUnix extends Fs{
 	public function is_file($path){
 
 	}
+	public function is_dir($path){
+
+	}
+}
+
+class FsCore{
+	protected $fb;
+	protected $attribs;
+
+	public function __construct($fb, $attribs){
+		$this->fb = $fb;
+		$this->attribs = $attribs;
+	}
+
+	# allow magic acces : $freebox->module->method()
+	public function __get($name){
+		if(array_key_exists($name, $this->attribs))
+			return $this->attribs[$name];
+		else{
+			switch($name){
+				case 'path':
+					return $this->path_proper(sprintf('%s/%s', $this->dir, $this->name));
+				default:
+					throw new Exception ("attribute $name does't exists");
+			}
+		}
+	}
+	
+	protected function path_proper($p){
+		return preg_replace('#//+#', '/', $p); 
+	}
+}
+
+class FsEntry extends FsCore{
+
+	public function cp($dest){
+		parent::cp($this->path, $dest);
+	}
+	public function mv($dest){
+		parent::cp($this->path, $dest);
+	}
+	public function rm($dest){
+		parent::rm($this->path);
+	}
+	public function save($dest='.'){
+		$data = $this->get($this->path);
+		if(is_dir($dest))
+			file_put_contents($dest . '/' . $this->name, $data);
+		else
+			file_put_contents($dest, $data);
+	}
+}
+
+class FsDir extends FsCore{
+	protected $content = null;
+
+	public function __construct($fb, $attribs){
+		parent::__construct($fb, $attribs);
+		$this->content = null;
+	}
+
+	public function cp($dest){
+		throw new Exception("to be done ...");
+	}
+	public function mv($dest){
+		throw new Exception("to be done ...");
+	}
+	public function rm($dest){
+		throw new Exception("to be done ...");
+	}
+	public function save($dest){
+		throw new Exception("to be done ...");
+	}
+	public function miror($dest){
+		throw new Exception("to be done ...");
+	}
+
 }
 
 ?>
