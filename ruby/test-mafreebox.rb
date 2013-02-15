@@ -62,7 +62,28 @@ else
 			pp mafreebox.system.get_all
 			
 		when "conn"
-			pp mafreebox.conn.get_all
+			pp mafreebox.conn.get
+			
+		when "phone"
+			pp mafreebox.phone.get
+	
+		when "ipv6"
+			pp mafreebox.ipv6.get
+	
+		when "igd"
+			pp mafreebox.igd.get
+	
+		when "lcd"
+			pp mafreebox.lcd.get
+
+		when "share"
+			pp mafreebox.share.get
+
+		when "user"
+			pp mafreebox.user.password_check_quality("123")
+
+		when "lan"
+			pp mafreebox.lan.get
 
 		when "download"
 			p mafreebox.download.list

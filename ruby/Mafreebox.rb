@@ -82,10 +82,17 @@ class Mafreebox
 		@modules = Hash.new
 
 		@modules[:conn]     = Conn.new(self)
-		@modules[:system]   = System.new(self)
-		@modules[:fs]       = Fs.new(self)
-		@modules[:unix]     = Unix.new(self)
 		@modules[:download] = Download.new(self)
+		@modules[:fs]       = Fs.new(self)
+		@modules[:igd]      = Igd.new(self)
+		@modules[:ipv6]     = IPv6.new(self)
+		@modules[:lan]      = Lan.new(self)
+		@modules[:lcd]      = Lcd.new(self)
+		@modules[:phone]    = Phone.new(self)
+		@modules[:share]    = Share.new(self)
+		@modules[:system]   = System.new(self)
+		@modules[:unix]     = Unix.new(self)
+		@modules[:user]     = User.new(self)
 
 		@config = config
 		@config[:cookie] = nil
@@ -449,6 +456,8 @@ class Conn < Module
 			:logs          => self.logs,
 		}
 	end
+
+	alias get get_all
 	
 	def status
 		@fb.exec('conn.status')
@@ -485,9 +494,281 @@ class Conn < Module
 	def wan_ping_set(bool)
 		@fb.exec('conn.wan_adblock_set', bool)
 	end
+end
 
+
+=begin
+
+Phone : Téléphonie : Contrôle de la ligne téléphonique analogique et de la base DECT.
+
+todo : 
+- exploiter le journal des appels au format HTML et l'exporter dans un format utilisable (xml, csv, ...) /done.
+
+methods :
+
+    phone.status : Récupère l'état du matériel et de la ligne téléphonique. 
+    phone.fxs_ring(active:bool) : Active/désactive la sonnerie du combiné de la ligne analogique. 
+    phone.dect_paging(active:bool) : Active la recherche (sonnerie) de satellites DECT. 
+    phone.dect_registration_set(active:bool) : Active ou désactive l'association de la base DECT de la freebox. 
+    phone.dect_params_set(params) : Modifie les réglages d'enregistrement dect DECT 
+    phone.dect_delete(id): Supprime les associations de tous les satellites de la base DECT de la freebox. 
+
+
+data types :
+
+fxs-status:
+- initializing 	En cours d'initialisation.
+- working 	Fonctionnement normal.
+- error 	Problème logiciel ou matériel empêchant la ligne de fonctionner.
+
+mgcp-status:
+- waiting 	Attend l'activation de la connexion internet, ou d'une configuration valide pour pouvoir se connecter aux serveurs.
+- connecting 	En cours de connexion aux serveurs.
+- working 	Fonctionnement normal.
+- error 	Une erreur empêche la ligne de fonctionner (serveurs injoignable, mauvaise configuration, ...)
+
+dect-params:
+- enabled] => bool
+- nemo_mode] => 
+- ring_on_off] => bool
+- eco_mode] => 
+- pin] => 1234 (code pin)
+- registration => 
+- ring_type => int
+
+phone-status :
+(
+    [mgcp] => Array  (ligne VOIP)
+        (
+            [status] => mgp-status
+        )
+
+    [fxs] => Array (ligne analogique)
+        (
+            [is_ringing] => boold
+            [hook] => on|off     (état du combiné)
+            [status] => fxs-status
+            [gain_tx] => int
+            [gain_rx] => int
+        )
+
+    [dects] => Array (liste des téléphones DECT déclarés)
+        (
+        )
+
+    [dect] => dect-params
+
+)
+
+=end
+
+class Phone < Module
+
+	def status
+		@fb.exec('phone.status')
+	end
+
+	alias get status
+	
+	def fxs_ring(bool)
+		@fb.exec('phone.fxs_ring', bool)
+	end
+
+	alias ring fxs_ring
+
+	def dect_paging(bool)
+		@fb.exec('phone.dect_paging', bool)
+	end
+
+	def dect_registration_set(bool)
+		@fb.exec('phone.dect_registration_set', bool)
+	end
+
+	def dect_params_set(bool)
+		@fb.exec('phone.dect_params_set', bool)
+	end
+
+	def dect_delete(id)
+		@fb.exec('phone.dect_delete', id)
+	end
+
+end
+
+=begin
+
+types:
+
+ipv6-cnf:
+- enabled : bool (true, false)
+
+IPv6 : Fonctions permettant de configurer IPv6
+    ipv6.config_get():ipv6-cnf
+    ipv6.config_set(ipv6-cnf)
+
+=end
+
+class IPv6 < Module
+	
+	def config_get
+		@fb.exec('ipv6.config_get')
+	end
+
+	def config_set(cnf)
+		@fb.exec('ipv6.config_set', cnf)
+	end
+
+	alias get config_get
+	alias set config_set
 
 end
 
 
+=begin
 
+ Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+    igd.config_get():igd-cnf :  Retourne la configuration courante. 
+    igd.config_set(igd-cnf) :  Applique la configuration. 
+    igd.redirs_get() :  Liste les redirections de ports créees par UPnP 
+    igd.redir_del(ext_src_ip, ext_port, proto) :  Supprime une redirection. 
+    * 
+
+types:
+
+igd-cnf:
+- enabled: boolean
+
+
+=end
+
+class Igd < Module
+
+	def get_all
+		return {
+			:config => self.config_get,
+			:redirs => self.redirs_get,
+		}
+	end
+
+	alias get get_all
+
+	def config_get
+		@fb.exec('igd.config_get')
+	end
+
+	def config_set(cnf)
+		@fb.exec('igd.config_set', cnf)
+	end
+
+	def redirs_get
+		@fb.exec('igd.redirs_get')
+	end
+
+	def redir_del(ext_src_ip, ext_port, proto)
+		@fb.exec('igd.redir_del', [ext_src_ip, ext_port, proto])
+	end
+
+
+end
+
+=begin
+
+
+Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
+    lcd.brightness_get():int (pourcentage)
+    lcd.brightness_set(value:int)
+
+=end
+
+class Lcd < Module
+
+	def brightness_get
+		@fb.exec('lcd.brightness_get')
+	end
+
+	def brightness_set(percent)
+		@fb.exec('lcd.brightness_set', percent)
+	end
+
+	alias get brightness_get
+	alias set brightness_set
+
+end
+
+
+=begin
+
+Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage windows de la freebox.
+    share.get_config:type-share-cnf
+    share.set_config(type-share-cnf)
+
+type-share-cnf:
+- [workgroup] => string ; défaut=freebox
+- [logon_password] => 
+- [print_share_enabled] => 1
+- [file_share_enabled] => 1
+- [logon_enabled] => 
+- [logon_user] => string ; defaut=freebox
+
+=end
+
+class Share < Module
+
+	def get_config
+		@fb.exec('share.get_config')
+	end
+
+	def set_config(cnf)
+		@fb.exec('share.set_config', cnf)
+	end
+
+	alias get get_config
+	alias set set_config
+
+end
+
+=begin
+
+User : Utilisateurs : Permet de modifier les paramêtres utilisateur du boitier NAS.
+    user.password_reset(login) : Réinitialize le mot de passe d'un utilisateur. 
+    user.password_set(login, oldpass, newpass) : Change le mot de passe d'un utilisateur. 
+    user.password_check_quality(passwd) : 
+
+=end
+
+class User < Module
+
+	def password_reset(login)
+		@fb.exec('user.password_reset', login)
+	end
+
+	def password_set(login, oldpass, newpass)
+		@fb.exec('user.password_set', login, oldpass, newpass)
+	end
+
+	def password_check_quality(passwd)
+		@fb.exec('user.password_check_quality', passwd)
+	end
+
+end
+
+=begin
+
+Lan : Fonctions permettant de configurer le réseau LAN.
+    lan.ip_address_get
+    lan.ip_address_set
+=end
+
+class Lan < Module
+
+	def ip_address_get
+		@fb.exec('lan.ip_address_get')
+	end
+
+	def ip_address_set(ip)
+		@fb.exec('lan.ip_address_set', ip)
+	end
+
+	alias get ip_address_get
+	alias set ip_address_set
+
+end
