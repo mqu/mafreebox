@@ -3,6 +3,7 @@
 
 # author : Marc Quinton, février 2013, licence : http://fr.wikipedia.org/wiki/WTFPL
 
+require 'pp'
 require './Mafreebox.rb'
 
 def usage
@@ -58,7 +59,10 @@ else
 			}
 
 		when "system"
-			p mafreebox.system.get_all
+			pp mafreebox.system.get_all
+			
+		when "conn"
+			pp mafreebox.conn.get_all
 
 		when "download"
 			p mafreebox.download.list

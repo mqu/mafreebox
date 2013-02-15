@@ -81,6 +81,7 @@ class Mafreebox
     def initialize config
 		@modules = Hash.new
 
+		@modules[:conn]     = Conn.new(self)
 		@modules[:system]   = System.new(self)
 		@modules[:fs]       = Fs.new(self)
 		@modules[:unix]     = Unix.new(self)
@@ -438,6 +439,55 @@ conn.wan_adblock_set(bool) : blocage de la publicité
 
 =end
 
+class Conn < Module
+
+	def get_all
+		return {
+			:status        => self.status,
+			:ping          => self.wan_ping_get,
+			:remote_access => self.remote_access_get,
+			:logs          => self.logs,
+		}
+	end
+	
+	def status
+		@fb.exec('conn.status')
+	end
+	
+	def logs
+		@fb.exec('conn.logs')
+	end
+	
+	def logs_flush
+		@fb.exec('conn.logs_flush')
+	end
+	
+	def wan_ping_get
+		@fb.exec('conn.wan_ping_get')
+	end
+	
+	def wan_ping_set(bool)
+		@fb.exec('conn.wan_ping_set', bool)
+	end
+
+	def remote_access_get
+		@fb.exec('conn.remote_access_get')
+	end
+	
+	def remote_access_set(bool)
+		@fb.exec('conn.remote_access_set', bool)
+	end
+
+	def wan_adblock_get
+		@fb.exec('conn.wan_adblock_get')
+	end
+	
+	def wan_ping_set(bool)
+		@fb.exec('conn.wan_adblock_set', bool)
+	end
+
+
+end
 
 
 
