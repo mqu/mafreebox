@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# encoding: utf-8
+# coding: utf-8
 
 # author : Marc Quinton, février 2013, licence : http://fr.wikipedia.org/wiki/WTFPL
 

@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 
+# coding: UTF-8
 
 =begin
 
@@ -287,25 +288,11 @@ end
 
 class Unix < Fs
 
-	def ls(path)
-		self.list(path)
-	end
-
-	def mv(src, dest)
-		self.move(src, dest)
-	end
-
-	def cp(src, dest)
-		self.copy(src, dest)
-	end
-
-	def rm(path)
-		self.remove(path)
-	end
-
-	def rmdir(path)
-		self.remove(path)
-	end
+	alias ls list
+	alias mv move
+	alias cp copy
+	alias rm remove
+	alias rmdir remove
 
 end
 
@@ -400,6 +387,57 @@ class Download < Module
 	end
 
 end
+
+=begin
+
+Conn: informations concernant l'état de la connexion Internet et réponse au ping.
+
+types:
+
+conn-status:
+- type: rfc2684
+- state: up|down
+- media: adsl|fibre?
+- ip_address: ip externe
+
+- rate_down: int (débit download instantané)
+- rate_up: int (débit upload instantané)
+
+- bytes_down: volume téléchargé (download) depuis reboot en octet
+- bytes_up: volume téléchargé (upload) depuis reboot en octet
+
+- bandwidth_up: bande passante en octets/s (upload)
+- bandwidth_down: bande passante en octets/s (download)
+
+
+log-type:
+- [id] => int
+- [type] => up
+- [date] => time_t 
+- [connection] => dgp_priv|dgp_pub : état de la connexion (publique ou privée) 
+
+
+methods :
+
+conn.status -> conn-status : état de la connexion Internet (débit instantané, bande passante, volumétrie, état).
+
+conn.wan_ping_get : état de la réponse au ping sur l'adresse IP externe
+conn.wan_ping_set(bool) : configuration de la réponse au ping
+
+conn.remote_access_set(bool) : autorise l'accès à l'interface d'administration à distance (et le scripting),
+conn.remote_access_get : configuration
+
+conn.proxy_wol_get : état du proxy wakeup on lan (WOL)
+conn.proxy_wol_set(bool) : configuration du proxy WOL
+
+conn.logs : array(log-type) : historique de la connexion Internet : retrace les connexions et déconnexion.
+conn.logs_flush : efface l'historique des connexions
+
+conn.wan_adblock_get : état du blocage de la publicité
+conn.wan_adblock_set(bool) : blocage de la publicité
+
+=end
+
 
 
 
