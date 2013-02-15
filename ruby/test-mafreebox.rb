@@ -35,7 +35,7 @@ end
 (usage && exit(0)) if ARGV.length == 0
 
 begin
-	mafreebox = Mafreebox.new(config)
+	mafreebox = Mafreebox::Mafreebox.new(config)
 	# throws an exception on login or connexion error
 	mafreebox.login
 #rescue

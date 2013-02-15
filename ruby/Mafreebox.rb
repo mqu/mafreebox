@@ -72,6 +72,8 @@ Exemple d'utilisation :
 
 =end
 
+module Mafreebox
+
 require 'net/http'
 require 'json'
 require 'yaml'
@@ -102,6 +104,7 @@ require 'yaml'
 		* User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
 		- WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
 =end
+
 
 class Mafreebox
 
@@ -217,7 +220,7 @@ class Module
 	end
 	
 	def exec(cmd, args=[])
-		raise("error : no module name") if @name==nil
+		raise("error : no module name for " + self.class.to_s) if @name==nil
 		cmd = sprintf("%s.%s", @name, cmd)
 		@fb.exec(cmd, args)
 	end
@@ -870,3 +873,5 @@ class Lan < Module
 	alias set ip_address_set
 
 end
+
+end # module Mafreebox
