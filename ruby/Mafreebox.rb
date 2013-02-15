@@ -76,6 +76,33 @@ require 'net/http'
 require 'json'
 require 'yaml'
 
+
+=begin
+
+	modules list :
+
+	  - les modules marqués d'un '*' sont implémentés totalement ou partiellement.
+	  - les modules marqués d'un '-' ne sont pas implémentés.
+
+		- Account : account basic http authentication : rien de précis sur ce module dans l'API JSON ...
+		* Conn : informations et gestion de la connexion Internet,
+		- DHCP : Gestion du serveur DHCP,
+		* Download : Gestionnaire de téléchargement ftp/http/torrent.
+		- Ftp : gestion du serveur FTP,
+		* Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
+		- Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
+		* Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+		* IPv6 : Fonctions permettant de configurer IPv6
+		* Lan : Fonctions permettant de configurer le réseau LAN.
+		* Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
+		* Phone : Gestion de la ligne téléphonique analogique et de la base DECT.
+		* Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage Windows de la Freebox.
+		- Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
+		* System : fonctions système de la Freebox,
+		* User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
+		- WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
+=end
+
 class Mafreebox
 
     def initialize config
@@ -93,6 +120,12 @@ class Mafreebox
 		@modules[:system]   = System.new(self)
 		@modules[:unix]     = Unix.new(self)
 		@modules[:user]     = User.new(self)
+
+		# @modules[:dhcp]   = Dhcp.new(self)
+		# @modules[:ftp]    = Ftp.new(self)
+		# @modules[:fw]     = Fw.new(self)
+		# @modules[:storage]= Storage.new(self)
+		# @modules[:wifi]   = Wifi.new(self)
 
 		@config = config
 		@config[:cookie] = nil
@@ -177,9 +210,20 @@ end
 
 class Module
 	@fb
-
+	@name
 	def initialize fb
-	        @fb = fb
+        @fb = fb
+        @name = nil
+	end
+	
+	def exec(cmd, args=[])
+		raise("error : no module name") if @name==nil
+		cmd = sprintf("%s.%s", @name, cmd)
+		@fb.exec(cmd, args)
+	end
+
+	def post(cmd, args)
+		@fb.post(cmd, args)
 	end
 end
 
@@ -204,6 +248,11 @@ end
 
 class System < Module
 
+	def initialize fb
+        super
+        @name = 'system'
+	end
+
 	def get_all
 		return {
 			'uptime'     => self.uptime_get,
@@ -214,23 +263,23 @@ class System < Module
 	end
 
 	def uptime_get
-		@fb.exec('system.uptime_get')
+		self.exec('uptime_get')
 	end
 
 	def mac_address_get
-		@fb.exec('system.mac_address_get')
+		self.exec('mac_address_get')
 	end
 
 	def serial_get
-		@fb.exec('system.serial_get')
+		self.exec('serial_get')
 	end
 
 	def reboot(timeout)
-		@fb.exec('system.reboot', [timeout])
+		self.exec('reboot', [timeout])
 	end
 
 	def fw_release_get
-		@fb.exec('system.fw_release_get')
+		self.exec('fw_release_get')
 	end
 end
 
@@ -257,16 +306,20 @@ end
 # - get_json -> JSON : fs.get
 
 class Fs < Module
+	def initialize fb
+        super
+        @name = 'fs'
+	end
 
 	def list(path)
-		@fb.exec('fs.list', [path])
+		self.exec('list', [path])
 	end
 
 	def json_get(file, opts=nil)
 		if(opts == nil)
-			@fb.exec('fs.get', file)
+			self.exec('get', file)
 		else
-			@fb.exec('fs.get', [file, opts])
+			self.exec('get', [file, opts])
 		end
 	end
 
@@ -274,23 +327,23 @@ class Fs < Module
 		args= {
 			'filename' => path
 		}
-		@fb.post('get.php', args).body
+		self.post('get.php', args).body
 	end
 
 	def copy(src, dest)
-		@fb.exec('fs.copy', [src, dest])
+		self.exec('copy', [src, dest])
 	end
 
 	def mkdir(path)
-		@fb.exec('fs.mkdir', path)
+		self.exec('mkdir', path)
 	end
 
 	def remove(path)
-		@fb.exec('fs.remove', path)
+		self.exec('remove', path)
 	end
 
 	def move(src, dest)
-		@fb.exec('fs.move', [src, dest])
+		self.exec('move', [src, dest])
 	end
 end
 
@@ -378,20 +431,25 @@ methods :
 
 class Download < Module
 
+	def initialize fb
+        super
+        @name = 'download'
+	end
+
 	def list()
-		@fb.exec('download.list')
+		self.exec('list')
 	end
 
 	def config_get()
-		@fb.exec('download.config_get')
+		self.exec('config_get')
 	end
 
 	def config_set(config)
-		@fb.exec('download.config_set', config)
+		self.exec('config_set', config)
 	end
 
 	def http_add(name, url)
-		@fb.exec('download.http_add', [name, url])
+		self.exec('http_add', [name, url])
 	end
 
 end
@@ -448,6 +506,11 @@ conn.wan_adblock_set(bool) : blocage de la publicité
 
 class Conn < Module
 
+	def initialize fb
+        super
+        @name = 'conn'
+	end
+
 	def get_all
 		return {
 			:status        => self.status,
@@ -460,39 +523,39 @@ class Conn < Module
 	alias get get_all
 	
 	def status
-		@fb.exec('conn.status')
+		self.exec('status')
 	end
 	
 	def logs
-		@fb.exec('conn.logs')
+		self.exec('logs')
 	end
 	
 	def logs_flush
-		@fb.exec('conn.logs_flush')
+		self.exec('logs_flush')
 	end
 	
 	def wan_ping_get
-		@fb.exec('conn.wan_ping_get')
+		self.exec('wan_ping_get')
 	end
 	
 	def wan_ping_set(bool)
-		@fb.exec('conn.wan_ping_set', bool)
+		self.exec('wan_ping_set', bool)
 	end
 
 	def remote_access_get
-		@fb.exec('conn.remote_access_get')
+		self.exec('remote_access_get')
 	end
 	
 	def remote_access_set(bool)
-		@fb.exec('conn.remote_access_set', bool)
+		self.exec('remote_access_set', bool)
 	end
 
 	def wan_adblock_get
-		@fb.exec('conn.wan_adblock_get')
+		self.exec('wan_adblock_get')
 	end
 	
 	def wan_ping_set(bool)
-		@fb.exec('conn.wan_adblock_set', bool)
+		self.exec('wan_adblock_set', bool)
 	end
 end
 
@@ -564,32 +627,37 @@ phone-status :
 
 class Phone < Module
 
+	def initialize fb
+        super
+        @name = 'phone'
+	end
+
 	def status
-		@fb.exec('phone.status')
+		self.exec('status')
 	end
 
 	alias get status
 	
 	def fxs_ring(bool)
-		@fb.exec('phone.fxs_ring', bool)
+		self.exec('fxs_ring', bool)
 	end
 
 	alias ring fxs_ring
 
 	def dect_paging(bool)
-		@fb.exec('phone.dect_paging', bool)
+		self.exec('dect_paging', bool)
 	end
 
 	def dect_registration_set(bool)
-		@fb.exec('phone.dect_registration_set', bool)
+		self.exec('dect_registration_set', bool)
 	end
 
 	def dect_params_set(bool)
-		@fb.exec('phone.dect_params_set', bool)
+		self.exec('dect_params_set', bool)
 	end
 
 	def dect_delete(id)
-		@fb.exec('phone.dect_delete', id)
+		self.exec('dect_delete', id)
 	end
 
 end
@@ -608,13 +676,18 @@ IPv6 : Fonctions permettant de configurer IPv6
 =end
 
 class IPv6 < Module
-	
+
+	def initialize fb
+        super
+        @name = 'ipv6'
+	end
+
 	def config_get
-		@fb.exec('ipv6.config_get')
+		self.exec('config_get')
 	end
 
 	def config_set(cnf)
-		@fb.exec('ipv6.config_set', cnf)
+		self.exec('config_set', cnf)
 	end
 
 	alias get config_get
@@ -642,6 +715,11 @@ igd-cnf:
 
 class Igd < Module
 
+	def initialize fb
+        super
+        @name = 'igd'
+	end
+
 	def get_all
 		return {
 			:config => self.config_get,
@@ -652,19 +730,19 @@ class Igd < Module
 	alias get get_all
 
 	def config_get
-		@fb.exec('igd.config_get')
+		self.exec('config_get')
 	end
 
 	def config_set(cnf)
-		@fb.exec('igd.config_set', cnf)
+		self.exec('config_set', cnf)
 	end
 
 	def redirs_get
-		@fb.exec('igd.redirs_get')
+		self.exec('redirs_get')
 	end
 
 	def redir_del(ext_src_ip, ext_port, proto)
-		@fb.exec('igd.redir_del', [ext_src_ip, ext_port, proto])
+		self.exec('redir_del', [ext_src_ip, ext_port, proto])
 	end
 
 
@@ -681,12 +759,17 @@ Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
 
 class Lcd < Module
 
+	def initialize fb
+        super
+        @name = 'lcd'
+	end
+
 	def brightness_get
-		@fb.exec('lcd.brightness_get')
+		self.exec('brightness_get')
 	end
 
 	def brightness_set(percent)
-		@fb.exec('lcd.brightness_set', percent)
+		self.exec('brightness_set', percent)
 	end
 
 	alias get brightness_get
@@ -713,12 +796,17 @@ type-share-cnf:
 
 class Share < Module
 
+	def initialize fb
+        super
+        @name = 'share'
+	end
+
 	def get_config
-		@fb.exec('share.get_config')
+		self.exec('get_config')
 	end
 
 	def set_config(cnf)
-		@fb.exec('share.set_config', cnf)
+		self.exec('set_config', cnf)
 	end
 
 	alias get get_config
@@ -737,16 +825,21 @@ User : Utilisateurs : Permet de modifier les paramêtres utilisateur du boitier 
 
 class User < Module
 
+	def initialize fb
+        super
+        @name = 'user'
+	end
+
 	def password_reset(login)
-		@fb.exec('user.password_reset', login)
+		self.exec('password_reset', login)
 	end
 
 	def password_set(login, oldpass, newpass)
-		@fb.exec('user.password_set', login, oldpass, newpass)
+		self.exec('password_set', login, oldpass, newpass)
 	end
 
 	def password_check_quality(passwd)
-		@fb.exec('user.password_check_quality', passwd)
+		self.exec('password_check_quality', passwd)
 	end
 
 end
@@ -760,12 +853,17 @@ Lan : Fonctions permettant de configurer le réseau LAN.
 
 class Lan < Module
 
+	def initialize fb
+        super
+        @name = 'lan'
+	end
+
 	def ip_address_get
-		@fb.exec('lan.ip_address_get')
+		self.exec('ip_address_get')
 	end
 
 	def ip_address_set(ip)
-		@fb.exec('lan.ip_address_set', ip)
+		self.exec('ip_address_set', ip)
 	end
 
 	alias get ip_address_get

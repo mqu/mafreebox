@@ -75,6 +75,9 @@ else
 	
 		when "lcd"
 			pp mafreebox.lcd.get
+			pp mafreebox.lcd.set(15) ; sleep(1) ; pp mafreebox.lcd.get
+			pp mafreebox.lcd.set(75) ; sleep(1) ; pp mafreebox.lcd.get
+			pp mafreebox.lcd.set(100) ; sleep(1) ; pp mafreebox.lcd.get
 
 		when "share"
 			pp mafreebox.share.get
