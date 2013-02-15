@@ -49,7 +49,7 @@ Exemple d'utilisation :
 	end
 
 	begin
-		mafreebox = Mafreebox.new(config)
+		mafreebox = Mafreebox::Mafreebox.new(config)
 		# throws an exception on login or connexion error
 		mafreebox.login
 	rescue
