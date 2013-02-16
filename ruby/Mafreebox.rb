@@ -827,6 +827,23 @@ class Lcd < Module
 		self.exec('brightness_set', percent)
 	end
 
+	# fait clingoter l'afficheur LCD :
+	# - count : nombre d'occurrences du clignotement,
+	# - delay : temps en mili-secondes du cyle. 
+	# - le cycle est coupé en 3 intervalles égaux,
+	# - l'afficheur est en luminosité basse 1/3 du temps et en luminosité forte 2/3 du temps.
+	def blink(count=60, delay=100)
+		delay = delay / 100 / 3
+		i=count
+		while (i>0)
+			self.set(0)
+			sleep(delay)
+			self.set(100)
+			sleep(delay*2)
+			i -= 1			
+		end
+	end
+
 	alias get brightness_get
 	alias set brightness_set
 

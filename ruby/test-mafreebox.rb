@@ -69,6 +69,9 @@ case ARGV[0]
 	when "igd"
 		pp mafreebox.igd.get
 
+	when "blink"
+		mafreebox.lcd.blink
+
 	when "lcd"
 		if ARGV.count == 2
 			pp mafreebox.lcd.set(ARGV[1])
