@@ -832,8 +832,10 @@ class Lcd < Module
 	# - delay : temps en mili-secondes du cyle. 
 	# - le cycle est coupé en 3 intervalles égaux,
 	# - l'afficheur est en luminosité basse 1/3 du temps et en luminosité forte 2/3 du temps.
-	def blink(count=60, delay=100)
-		delay = delay / 100 / 3
+	def blink(count=60, delay=500.0, ratio=2)
+		# l'état initial est concervé afin de remettre en fin de procédure.
+		state = self.get
+		delay = delay / 1000 / 3
 		i=count
 		while (i>0)
 			self.set(0)
@@ -842,6 +844,7 @@ class Lcd < Module
 			sleep(delay*2)
 			i -= 1			
 		end
+		self.set(state)
 	end
 
 	alias get brightness_get
