@@ -63,11 +63,12 @@ Exemple d'utilisation :
 	# execution d'une requete JSON concernant le module FS
 	p mafreebox.exec('fs.list', ['Disque dur/']);
 
+	# exemple d'utilisation du module "Unix".
 	mafreebox.unix.cp('/Disque dur/test/toto.txt','/Disque dur/test/titi.txt')
 	mafreebox.unix.rm('/Disque dur/test/titi.txt')
 	mafreebox.unix.get('/Disque dur/test/toto.txt')
 
-	# invocation de la méthode reboot du module System.
+	# Reboot de la Freebox ; rien de plus simple.
 	p mafreebox.system.reboot
 
 =end
@@ -78,35 +79,27 @@ require 'net/http'
 require 'json'
 require 'yaml'
 
-
 =begin
 
-	modules list :
+class tree :
+	module Mafreebox
+		Core
+			Mafreefox
+		Module
+			[Conn, Download, Igd, IPv6, Lan, Lcd, Phone, Share, System, User]
+			Fs
+				Unix
 
-	  - les modules marqués d'un '*' sont implémentés totalement ou partiellement.
-	  - les modules marqués d'un '-' ne sont pas implémentés.
 
-		- Account : account basic http authentication : rien de précis sur ce module dans l'API JSON ...
-		* Conn : informations et gestion de la connexion Internet,
-		- DHCP : Gestion du serveur DHCP,
-		* Download : Gestionnaire de téléchargement ftp/http/torrent.
-		- Ftp : gestion du serveur FTP,
-		* Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
-		- Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
-		* Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
-		* IPv6 : Fonctions permettant de configurer IPv6
-		* Lan : Fonctions permettant de configurer le réseau LAN.
-		* Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
-		* Phone : Gestion de la ligne téléphonique analogique et de la base DECT.
-		* Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage Windows de la Freebox.
-		- Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
-		* System : fonctions système de la Freebox,
-		* User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
-		- WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
+class composition (délégation)
+	Module -> Mafreebox (chaque sous-classe de Module embarque une référence)
+
 =end
 
-
-class Mafreebox
+# support des fonctions de base (Core)
+# - gestion des modules, 
+# - gestion des requêtes sur protocole HTTP
+class Core
 
     def initialize config
 		@modules = Hash.new
@@ -130,25 +123,7 @@ class Mafreebox
 		# @modules[:storage]= Storage.new(self)
 		# @modules[:wifi]   = Wifi.new(self)
 
-		@config = config
-		@config[:cookie] = nil
-		@config[:token] = nil
     end
-
-	def login
-		args = {
-			'login'  => @config[:login],
-			'passwd' => @config[:passwd]
-		}
-
-		response = self.post('login.php', args)
-
-		@config[:cookie] = response['Set-Cookie']
-		@config[:token] = response['x-fbx-csrf-token']
-
-		return true
-		
-	end
 
 	def post(cmd, args, headers={})
 
@@ -173,8 +148,8 @@ class Mafreebox
 
 		http = Net::HTTP.new(uri.host, uri.port)
 		# http.set_debug_output $stdout #useful to see the raw messages going over the wire
-		http.read_timeout = 5
-		http.open_timeout = 5
+		http.read_timeout = 15
+		http.open_timeout = 15
 
 		http.request(request)
 	end
@@ -184,7 +159,6 @@ class Mafreebox
 	end
 
 	def exec(cmd, args=[])
-
 		args = {
 			'jsonrpc' => '2.0',
             'method'  => cmd,
@@ -199,55 +173,130 @@ class Mafreebox
 		JSON::parse(self.post(cgi, args.to_json, headers).body)['result']
 	end
 
-	  # automatic call of modules :
-	  def method_missing(sym, *args)		
+	# automatic call of modules :
+	# - si sym (nom de la méthode appellée fait partie de la liste de modules, on retourne une référence
+	# sinon, on laisse passer (super) : ce qui va générer une exception
+	def method_missing(sym, *args)		
 		return @modules[sym] if(@modules.has_key?(sym))
 		super
-	  end
+	end
 
-	def uri cmd
+	# retourne un objet URI avec l'URL du service (http://mafreebox) + la commande à exécuter
+	def uri(cmd)
 		URI.parse(@config[:url] + cmd)
 	end
 
 end
 
+class Mafreebox < Core
+
+    def initialize(config)
+		super
+
+		@config = config
+		
+		# les variables de sessions seront embarquées dans la structure de configuration (@config)
+		@config[:cookie] = nil
+		@config[:token] = nil
+    end
+
+	# login sur l'interface Mafreebox
+	# - si l'authentification échoue, une exception est générée.
+	# - en cas de succès, la valeur true est retournée (pas très utile)
+	# - le succès de l'authentification est marqué par la redirection (code 302) vers une nouvelle page
+	# - les parametres de session (cookie, ...) sont enregistrés dans la configuration.
+	def login
+		args = {
+			'login'  => @config[:login],
+			'passwd' => @config[:passwd]
+		}
+
+		response = self.post('login.php', args)
+
+		# si la réponse n'est pas une redirection (code 302), il s'agit vraissemblament d'une erreur de d'authentification.
+		if(response.code != '302')
+			raise "erreur de connexion"
+		end
+
+		# ouf, tout va bien ; on enregistre les variables de session (cookies) ; servira par la suite pour les requêtes JSON.
+		@config[:cookie] = response['Set-Cookie']
+		@config[:token] = response['x-fbx-csrf-token']
+
+		return true
+	end
+end
+
+# fonctions communes à tous les modules
 class Module
 	@fb
 	@name
+	
+	# c'est la classe Freebox (fb) qui permettra par délégation d'adresser les requetes HTTP.
 	def initialize fb
         @fb = fb
         @name = nil
 	end
 	
+	# exec permet de faire une requete JSON avec le nom du module passé dans la requête.
+	# ex: system.exec('reboot') -> JSON : @fb('system.reboot')
+	#
 	def exec(cmd, args=[])
 		raise("error : no module name for " + self.class.to_s) if @name==nil
 		cmd = sprintf("%s.%s", @name, cmd)
 		@fb.exec(cmd, args)
 	end
 
+	# un POST par délégation sur la classe Freebox.
 	def post(cmd, args)
 		@fb.post(cmd, args)
 	end
 end
 
+=begin
 
-# System : 
-# 
-# - system.uptime_get() : retourne le temps écoulé depuis la mise en route de la freebox (en secondes)
-# - system.mac_address_get() : adresse MAC de la FB
-# - system.serial_get() : n° de série de la FB
-# - system.reboot ([timeout]) : Redémarre la freebox (timeout = temps d'attente en secondes)
-# - system.fw_release_get() : renvoie la version courante du firmware
-# 
-# - non documentées :
-# - system.rotation_set(): 
-# 
-# a faire : récupérer les températures depuis code HTML, page "/settings.php?page=misc_system"
-# 
-#       <li>Température CPUm : <span style="color: black;">XX °C</span></li>
-#       <li>Température CPUb : <span style="color: black;">XX °C</span></li>
-#       <li>Température SW : <span style="color: black;">XX °C</span></li>
-#       <li>Vitesse ventilateur : <span>XXXX RPM</span></li>
+modules list :
+
+  - les modules marqués d'un '*' sont implémentés totalement ou partiellement.
+  - les modules marqués d'un '-' ne sont pas implémentés.
+
+	- Account : account basic http authentication : rien de précis sur ce module dans l'API JSON ...
+	* Conn : informations et gestion de la connexion Internet,
+	- DHCP : Gestion du serveur DHCP,
+	* Download : Gestionnaire de téléchargement ftp/http/torrent.
+	- Ftp : gestion du serveur FTP,
+	* Fs : Systeme de fichiers : Fonctions permettant de lister et de gérer les fichiers du NAS.
+	- Fw : Firewall : Fonctions permettant d'interagir avec le firewall.
+	* Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+	* IPv6 : Fonctions permettant de configurer IPv6
+	* Lan : Fonctions permettant de configurer le réseau LAN.
+	* Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
+	* Phone : Gestion de la ligne téléphonique analogique et de la base DECT.
+	* Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage Windows de la Freebox.
+	- Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
+	* System : fonctions système de la Freebox,
+	* User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
+	- WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
+
+
+ System : 
+ 
+ - system.uptime_get() : retourne le temps écoulé depuis la mise en route de la freebox (en secondes)
+ - system.mac_address_get() : adresse MAC de la FB
+ - system.serial_get() : n° de série de la FB
+ - system.reboot ([timeout]) : Redémarre la freebox (timeout = temps d'attente en secondes)
+ - system.fw_release_get() : renvoie la version courante du firmware
+ 
+ - non documentées :
+ - system.rotation_set(): 
+ 
+ a faire : récupérer les températures depuis code HTML, page "/settings.php?page=misc_system"
+ 
+       <li>Température CPUm : <span style="color: black;">XX °C</span></li>
+       <li>Température CPUb : <span style="color: black;">XX °C</span></li>
+       <li>Température SW : <span style="color: black;">XX °C</span></li>
+       <li>Vitesse ventilateur : <span>XXXX RPM</span></li>
+
+=end
 
 class System < Module
 
@@ -286,27 +335,29 @@ class System < Module
 	end
 end
 
+=begin 
 
-# 
-# Fs : Fonctions permettant de lister et de gérer les fichiers du NAS.
-# 
-# méthodes JSON :
-# - fs.list(dir, opt) : liste les fichiers d'un répertoire donné. 
-# - fs.get(file [, opt]) : récupère les données d'un fichier sur le disque. 
-# - fs.operation_progress(id) : récupère l'état d'une tâche asynchrone en cours. 
-# - fs.operation_list() : Récupère la liste de toutes les opérations asynchrones en cours. 
-# - fs.abort(id) : tue une tâche en cours, 
-# - fs.set_password(id, password) : fourni un mot de passe à l'opération asynchrone le requérant. La tâche doit être dans l'état 'waiting_password'. 
-# - fs.move(from, to): déplace un ou des fichiers vers un nouveau répertoire. 
-# - fs.copy(from, to): copie un ou des fichiers vers un nouveau répertoire. 
-# - fs.remove(path): supprime définitivement un ou des fichiers. 
-# - fs.unpack(archive [, destination]): Décompresse une archive dans le répertoire. Si le répertoire de destination n'est pas renseigné, décompresse dans le répertoire ou se trouve l'archive. 
-# - fs.mkdir(path): Crée un répertoire sous /media étant donné son chemin 
-# 
-# correspondance méthodes :
-# 
-# - get() -> POST /get.php {filename=....},
-# - get_json -> JSON : fs.get
+ Fs : Fonctions permettant de lister et de gérer les fichiers du NAS.
+ 
+ méthodes JSON :
+ - fs.list(dir, opt) : liste les fichiers d'un répertoire donné. 
+ - fs.get(file [, opt]) : récupère les données d'un fichier sur le disque. 
+ - fs.operation_progress(id) : récupère l'état d'une tâche asynchrone en cours. 
+ - fs.operation_list() : Récupère la liste de toutes les opérations asynchrones en cours. 
+ - fs.abort(id) : tue une tâche en cours, 
+ - fs.set_password(id, password) : fourni un mot de passe à l'opération asynchrone le requérant. La tâche doit être dans l'état 'waiting_password'. 
+ - fs.move(from, to): déplace un ou des fichiers vers un nouveau répertoire. 
+ - fs.copy(from, to): copie un ou des fichiers vers un nouveau répertoire. 
+ - fs.remove(path): supprime définitivement un ou des fichiers. 
+ - fs.unpack(archive [, destination]): Décompresse une archive dans le répertoire. Si le répertoire de destination n'est pas renseigné, décompresse dans le répertoire ou se trouve l'archive. 
+ - fs.mkdir(path): Crée un répertoire sous /media étant donné son chemin 
+ 
+ correspondance méthodes :
+ 
+ - get() -> POST /get.php {filename=....},
+ - get_json -> JSON : fs.get
+
+=end
 
 class Fs < Module
 	def initialize fb
@@ -350,6 +401,7 @@ class Fs < Module
 	end
 end
 
+# Unix : permet de disposer de fonction de manipulation de fichiers à la Unix.
 class Unix < Fs
 
 	alias ls list
@@ -367,43 +419,43 @@ Download : Téléchargement : Gestionnaire de téléchargement ftp/http/torrent.
 
 types :
 
-dl-cfg:
-- max_up: int
-- download_dir : string, défaut : /Disque dur/Téléchargements
-- max_dl: int
-- max_peer: int
-- seed_ratio: int
+	dl-cfg:
+	- max_up: int
+	- download_dir : string, défaut : /Disque dur/Téléchargements
+	- max_dl: int
+	- max_peer: int
+	- seed_ratio: int
 
-dl-type: Protocole utilisé par la tâche.
-- torrent 	Téléchargement d'un fichier torrent.
-- http 	Téléchargement d'un lien ftp.
-- ftp 	TÃéléchargement d'un lien ftp.
+	dl-type: Protocole utilisé par la tâche.
+	- torrent 	Téléchargement d'un fichier torrent.
+	- http 	Téléchargement d'un lien ftp.
+	- ftp 	TÃéléchargement d'un lien ftp.
 
-dl-status :
-- queued 	Tâche dans la file d'attente (en attente de téléchargement, uniquement http/ftp).
-- running 	Tâche en cours de téléchargement.
-- seeding 	Tâche en cours de diffusion (uniquement torrent).
-- paused 	Tâche interrompue (en pause).
-- done      Tâche terminée.
-- error 	Une erreur s'est produite.
+	dl-status :
+	- queued 	Tâche dans la file d'attente (en attente de téléchargement, uniquement http/ftp).
+	- running 	Tâche en cours de téléchargement.
+	- seeding 	Tâche en cours de diffusion (uniquement torrent).
+	- paused 	Tâche interrompue (en pause).
+	- done      Tâche terminée.
+	- error 	Une erreur s'est produite.
 
-torrent_opts : Paramêtres en entree:
-  opt: paramêtres pour l'ajout. Un seul de ces champs est nécessaire.
-  - url (string): un lien http vers le fichier torrent.
-  - magnet (string):  un lien torrent de type magnet link.
-  - data (string): lLe contenu du fichier torrent, encodÃ© en base64.
+	torrent_opts : Paramêtres en entree:
+	  opt: paramêtres pour l'ajout. Un seul de ces champs est nécessaire.
+	  - url (string): un lien http vers le fichier torrent.
+	  - magnet (string):  un lien torrent de type magnet link.
+	  - data (string): lLe contenu du fichier torrent, encodÃ© en base64.
 
-task : 
+	task : 
 
-	id: id
-	type: dl-type
-	transferred: bytes transfered
-	name: filename
-	errmsg: 
-	status: dl-status
-	url: ftp://... | http://...
-	rx_rate: in bytes/s
-	size: size to download in bytes
+		id: id
+		type: dl-type
+		transferred: bytes transfered
+		name: filename
+		errmsg: 
+		status: dl-status
+		url: ftp://... | http://...
+		rx_rate: in bytes/s
+		size: size to download in bytes
 
 methods :
     download.start(type, id)
@@ -463,47 +515,42 @@ Conn: informations concernant l'état de la connexion Internet et réponse au pi
 
 types:
 
-conn-status:
-- type: rfc2684
-- state: up|down
-- media: adsl|fibre?
-- ip_address: ip externe
+	conn-status:
+	- type: rfc2684
+	- state: up|down
+	- media: adsl|fibre?
+	- ip_address: ip externe
 
-- rate_down: int (débit download instantané)
-- rate_up: int (débit upload instantané)
+	- rate_down: int (débit download instantané)
+	- rate_up: int (débit upload instantané)
 
-- bytes_down: volume téléchargé (download) depuis reboot en octet
-- bytes_up: volume téléchargé (upload) depuis reboot en octet
+	- bytes_down: volume téléchargé (download) depuis reboot en octet
+	- bytes_up: volume téléchargé (upload) depuis reboot en octet
 
-- bandwidth_up: bande passante en octets/s (upload)
-- bandwidth_down: bande passante en octets/s (download)
+	- bandwidth_up: bande passante en octets/s (upload)
+	- bandwidth_down: bande passante en octets/s (download)
 
 
-log-type:
-- [id] => int
-- [type] => up
-- [date] => time_t 
-- [connection] => dgp_priv|dgp_pub : état de la connexion (publique ou privée) 
+	log-type:
+	- [id] => int
+	- [type] => up
+	- [date] => time_t 
+	- [connection] => dgp_priv|dgp_pub : état de la connexion (publique ou privée) 
 
 
 methods :
 
-conn.status -> conn-status : état de la connexion Internet (débit instantané, bande passante, volumétrie, état).
-
-conn.wan_ping_get : état de la réponse au ping sur l'adresse IP externe
-conn.wan_ping_set(bool) : configuration de la réponse au ping
-
-conn.remote_access_set(bool) : autorise l'accès à l'interface d'administration à distance (et le scripting),
-conn.remote_access_get : configuration
-
-conn.proxy_wol_get : état du proxy wakeup on lan (WOL)
-conn.proxy_wol_set(bool) : configuration du proxy WOL
-
-conn.logs : array(log-type) : historique de la connexion Internet : retrace les connexions et déconnexion.
-conn.logs_flush : efface l'historique des connexions
-
-conn.wan_adblock_get : état du blocage de la publicité
-conn.wan_adblock_set(bool) : blocage de la publicité
+	conn.status -> conn-status : état de la connexion Internet (débit instantané, bande passante, volumétrie, état).
+	conn.wan_ping_get : état de la réponse au ping sur l'adresse IP externe
+	conn.wan_ping_set(bool) : configuration de la réponse au ping
+	conn.remote_access_set(bool) : autorise l'accès à l'interface d'administration à distance (et le scripting),
+	conn.remote_access_get : configuration
+	conn.proxy_wol_get : état du proxy wakeup on lan (WOL)
+	conn.proxy_wol_set(bool) : configuration du proxy WOL
+	conn.logs : array(log-type) : historique de la connexion Internet : retrace les connexions et déconnexion.
+	conn.logs_flush : efface l'historique des connexions
+	conn.wan_adblock_get : état du blocage de la publicité
+	conn.wan_adblock_set(bool) : blocage de la publicité
 
 =end
 
@@ -582,49 +629,49 @@ methods :
 
 data types :
 
-fxs-status:
-- initializing 	En cours d'initialisation.
-- working 	Fonctionnement normal.
-- error 	Problème logiciel ou matériel empêchant la ligne de fonctionner.
+	fxs-status:
+	- initializing 	En cours d'initialisation.
+	- working 	Fonctionnement normal.
+	- error 	Problème logiciel ou matériel empêchant la ligne de fonctionner.
 
-mgcp-status:
-- waiting 	Attend l'activation de la connexion internet, ou d'une configuration valide pour pouvoir se connecter aux serveurs.
-- connecting 	En cours de connexion aux serveurs.
-- working 	Fonctionnement normal.
-- error 	Une erreur empêche la ligne de fonctionner (serveurs injoignable, mauvaise configuration, ...)
+	mgcp-status:
+	- waiting 	Attend l'activation de la connexion internet, ou d'une configuration valide pour pouvoir se connecter aux serveurs.
+	- connecting 	En cours de connexion aux serveurs.
+	- working 	Fonctionnement normal.
+	- error 	Une erreur empêche la ligne de fonctionner (serveurs injoignable, mauvaise configuration, ...)
 
-dect-params:
-- enabled] => bool
-- nemo_mode] => 
-- ring_on_off] => bool
-- eco_mode] => 
-- pin] => 1234 (code pin)
-- registration => 
-- ring_type => int
+	dect-params:
+	- enabled] => bool
+	- nemo_mode] => 
+	- ring_on_off] => bool
+	- eco_mode] => 
+	- pin] => 1234 (code pin)
+	- registration => 
+	- ring_type => int
 
-phone-status :
-(
-    [mgcp] => Array  (ligne VOIP)
-        (
-            [status] => mgp-status
-        )
+	phone-status :
+	(
+		[mgcp] => Array  (ligne VOIP)
+			(
+				[status] => mgp-status
+			)
 
-    [fxs] => Array (ligne analogique)
-        (
-            [is_ringing] => boold
-            [hook] => on|off     (état du combiné)
-            [status] => fxs-status
-            [gain_tx] => int
-            [gain_rx] => int
-        )
+		[fxs] => Array (ligne analogique)
+			(
+				[is_ringing] => boold
+				[hook] => on|off     (état du combiné)
+				[status] => fxs-status
+				[gain_tx] => int
+				[gain_rx] => int
+			)
 
-    [dects] => Array (liste des téléphones DECT déclarés)
-        (
-        )
+		[dects] => Array (liste des téléphones DECT déclarés)
+			(
+			)
 
-    [dect] => dect-params
+		[dect] => dect-params
 
-)
+	)
 
 =end
 
@@ -667,14 +714,16 @@ end
 
 =begin
 
-types:
-
-ipv6-cnf:
-- enabled : bool (true, false)
-
 IPv6 : Fonctions permettant de configurer IPv6
+
+methods :
     ipv6.config_get():ipv6-cnf
     ipv6.config_set(ipv6-cnf)
+
+types:
+
+	ipv6-cnf:
+	- enabled : bool (true, false)
 
 =end
 
@@ -701,18 +750,18 @@ end
 
 =begin
 
- Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+Igd : UPnP IGD : Fonctions permettant de configurer l'UPnP IGD (Internet Gateway Device).
+ 
+methods :
     igd.config_get():igd-cnf :  Retourne la configuration courante. 
     igd.config_set(igd-cnf) :  Applique la configuration. 
     igd.redirs_get() :  Liste les redirections de ports créees par UPnP 
     igd.redir_del(ext_src_ip, ext_port, proto) :  Supprime une redirection. 
-    * 
 
 types:
 
-igd-cnf:
-- enabled: boolean
-
+	igd-cnf:
+	- enabled: boolean
 
 =end
 
@@ -755,6 +804,9 @@ end
 
 
 Lcd : Afficheur Fonctions permettant de controler l'afficheur de la Freebox.
+
+methods :
+
     lcd.brightness_get():int (pourcentage)
     lcd.brightness_set(value:int)
 
@@ -784,16 +836,21 @@ end
 =begin
 
 Share : Partage Windows : Fonctions permettant d'interagir avec la fonction de partage windows de la freebox.
+
+methods :
+
     share.get_config:type-share-cnf
     share.set_config(type-share-cnf)
 
-type-share-cnf:
-- [workgroup] => string ; défaut=freebox
-- [logon_password] => 
-- [print_share_enabled] => 1
-- [file_share_enabled] => 1
-- [logon_enabled] => 
-- [logon_user] => string ; defaut=freebox
+types :
+
+	type-share-cnf:
+	- [workgroup] => string ; défaut=freebox
+	- [logon_password] => 
+	- [print_share_enabled] => 1
+	- [file_share_enabled] => 1
+	- [logon_enabled] => 
+	- [logon_user] => string ; defaut=freebox
 
 =end
 
@@ -820,6 +877,9 @@ end
 =begin
 
 User : Utilisateurs : Permet de modifier les paramêtres utilisateur du boitier NAS.
+
+methods:
+
     user.password_reset(login) : Réinitialize le mot de passe d'un utilisateur. 
     user.password_set(login, oldpass, newpass) : Change le mot de passe d'un utilisateur. 
     user.password_check_quality(passwd) : 
@@ -850,8 +910,12 @@ end
 =begin
 
 Lan : Fonctions permettant de configurer le réseau LAN.
+
+methods :
+
     lan.ip_address_get
     lan.ip_address_set
+
 =end
 
 class Lan < Module
