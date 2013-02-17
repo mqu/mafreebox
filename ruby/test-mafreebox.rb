@@ -87,7 +87,27 @@ case ARGV[0]
 
 	when "lan"
 		pp mafreebox.lan.get
+		
+	when "wifi"
+		pp mafreebox.wifi.get
 
+		if(ARGV[1] == 'set-active')
+			pp ARGV
+			case ARGV[2]
+				when true
+				when "true"
+				when "on"
+					puts "set-active = on"
+					mafreebox.wifi.set_active(true)
+				when false
+				when "false"
+				when "off"
+					puts "set-active = off"
+					mafreebox.wifi.set_active(false)
+			end
+		else
+			pp mafreebox.wifi.get
+		end
 	when "download"
 		p mafreebox.download.list
 		cfg = mafreebox.download.config_get

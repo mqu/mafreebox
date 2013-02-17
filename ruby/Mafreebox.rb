@@ -116,12 +116,12 @@ class Core
 		@modules[:system]   = System.new(self)
 		@modules[:unix]     = Unix.new(self)
 		@modules[:user]     = User.new(self)
+		@modules[:wifi]     = Wifi.new(self)
 
 		# @modules[:dhcp]   = Dhcp.new(self)
 		# @modules[:ftp]    = Ftp.new(self)
 		# @modules[:fw]     = Fw.new(self)
 		# @modules[:storage]= Storage.new(self)
-		# @modules[:wifi]   = Wifi.new(self)
 
     end
 
@@ -958,4 +958,186 @@ class Lan < Module
 
 end
 
+
+=begin
+
+WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
+    wifi.status_get() : Retourne l'état du réseau sans fil 
+    wifi.config_get() : Retourne la configuration du réseau sans fil
+    wifi.ap_params_set(params) : Modifie la configuration de la carte Wifi 
+    wifi.bss_params_set(bss_cfg_name, params) : 
+    wifi.mac_filter_add(bss_cfg_name, filter_type, mac, comment): Ajoute une entrée à  la liste des MACs autorisées/interdites 
+    wifi.mac_filter_del(bss_cfg_name, filter_type, mac) :  Supprime une entrée de la liste des MACs autorisées/interdites 
+    wifi.stations_get(bssid, enabled) : Retourne la liste des stations associées 
+
+types :
+
+bss_cfg_name: perso|freewifi
+filter_type=whitelist|blacklist
+mac-address=adresse MAC de la carte réseau
+
+commandes : (information extraite avec firebug)
+0 - éléments communs :
+	csrf_token=TOKEN
+
+1 - Wifi / configuration / valider
+	method=wifi.ap_params_set
+
+	enabled=on|off
+	channel=1..13
+	ht_mode=disabled|20|40_upper|40_lower (Mode 802.11n)
+
+2 - Wifi / réseau personnel / paramêtres
+	method=wifi.bss_params_set
+	
+	enabled=on|off
+	hide_ssid=on|off
+	ssid=votre-sid
+	encryption=wep|wpa_psk_auto|wpa_psk_tkip|wpa_psk_ccmp|wpa2_psk_auto|wpa2_psk_tkip|wpa2_psk_ccmp
+	key=votre-mot-de-passe
+	mac_filter=disabled|whitelist|blacklist
+	eapol_version=1|2 (Version du protocole EAPOL)
+	config=Appliquer
+
+3 - Wifi / réseau personnel / paramêtres avancés (identique 2)
+	method=wifi.bss_params_set
+
+
+4.1 - Wifi / réseau personnel / liste [blanche|noire] / ajouter
+	method=wifi.mac_filter_add
+
+	mac=<mac-address> ; exemple :  00:1F:3C:1E:45:63 (':' est encodé %3A) 
+	comment=commentaire
+	bss_cfg_name=perso|freewifi
+	filter_type=whitelist|blacklist
+	action=Ajouter
+
+4.2 - Wifi / réseau personnel / liste blanche / supprimer
+	method=wifi.mac_filter_del
+
+	mac=<mac-address>
+	filter_type=<whitelist|blacklist>
+	action=Supprimer
+
+5 - Wifi / réseau personnel / stations
+	method=wifi.mac_filter_add
+
+	comment=
+	bss_cfg_name=perso
+	mac=<mac-address>
+	filter_type=whitelist
+	action=Ajouter+%C3%A0+la+liste+blanche
+
+
+*/
+
+=end
+
+
+class Wifi < Module
+
+	def initialize fb
+        super
+        @name = 'wifi'
+	end
+
+	def status_get
+		self.exec('status_get')
+	end
+
+	def config_get
+		self.exec('config_get')
+	end
+	
+	def config_set(cnf)
+		self.exec('config_set', cnf)
+	end
+
+	def get
+		return {
+			:status => self.status_get,
+			:config => self.config_get,
+		}
+	end
+
+	def stations_get
+		self.exec('config_get')
+	end
+
+	# FIXME : non fonctionnel ; à terminer.
+	def set_active(status)
+		case status
+			when false
+			when 'off'
+				status = 'off'
+			when true
+			when 'on'
+				status = 'on'
+		end
+		cnf = { 'enabled' => status}
+		self.exec('app_params_set', cnf)
+	end
+end
+
+=begin
+
+# résultat de la commande Wifi:get()
+
+{:status=>
+  {"detected"=>true,
+   "bss"=>
+    {"perso"=>
+      {"has_wps"=>false,
+       "bssid"=>"F4:CA:E5:C8:F1:70",
+       "name"=>"perso",
+       "active"=>true},
+     "freewifi"=>
+      {"has_wps"=>false,
+       "bssid"=>"F4:CA:E5:C8:F1:71",
+       "name"=>"freewifi",
+       "active"=>true}},
+   "active"=>true},
+ :config=>
+  {"bss"=>
+    {"perso"=>
+      {"name"=>"perso",
+       "params"=>
+        {"enabled"=>true,
+         "ssid"=>"votre-ssid",
+         "encryption"=>"wpa_psk_tkip",
+         "hide_ssid"=>false,
+         "allowed_macs"=>
+          [{"mac"=>"00:08:10:75:B9:AB", "comment"=>"apm"},
+           {"mac"=>"18:87:96:DA:5B:37", "comment"=>""}],
+         "eapol_version"=>2,
+         "key"=>"votre-mot-de-passe",
+         "denied_macs"=>
+          [{"mac"=>"00:1F:3C:1E:45:63", "comment"=>"votre-commentaire."},
+           {"mac"=>"18:87:96:DA:5B:37", "comment"=>""}],
+         "wps"=>{"enabled"=>false},
+         "mac_filter"=>"disabled"}},
+     "freewifi"=>
+      {"name"=>"freewifi",
+       "params"=>
+        {"enabled"=>true,
+         "ssid"=>"FreeWifi",
+         "encryption"=>"none",
+         "hide_ssid"=>false,
+         "allowed_macs"=>{},
+         "eapol_version"=>0,
+         "key"=>"",
+         "denied_macs"=>{},
+         "wps"=>{"enabled"=>false},
+         "mac_filter"=>"disabled"}}},
+   "ap_params"=>
+    {"enabled"=>true,
+     "channel"=>6,
+     "wmm"=>true,
+     "ht"=>{"ht_mode"=>"disabled"},
+     "band"=>"g"}}}
+
+=end
+
 end # module Mafreebox
+
+
