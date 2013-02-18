@@ -55,7 +55,8 @@ case ARGV[0]
 		}
 
 	when "system"
-		pp mafreebox.system.get_all
+		pp mafreebox.system.get
+		# pp mafreebox.system.reboot
 		
 	when "conn"
 		pp mafreebox.conn.get
@@ -110,15 +111,23 @@ case ARGV[0]
 		end
 	when "download"
 		p mafreebox.download.list
-		cfg = mafreebox.download.config_get
-		p cfg
-		cfg['max_dl'] = 100
-		cfg['max_up'] = 50
 
-		# FIXME : petit bug ici ... ? certains attributs semblent disparaitre de l'interface d'admin 
-		# sont-ils écrasés ?
-		mafreebox.download.config_set(cfg)
-		sleep(1) ; p mafreebox.download.config_get
+		# sleep(1) ; p mafreebox.download.config_get
+		# pp mafreebox.download.http_add('ubuntu-12.10-server-amd64.iso', 'http://www-ftp.lip6.fr/pub/linux/distributions/Ubuntu/releases/12.10/ubuntu-12.10-server-amd64.iso')
+		# sleep 1 ; pp mafreebox.download.list
+
+		pp mafreebox.download.config_get
+		
+		config = {
+			'download_dir'=>'/Disque dur/Téléchargements',
+			'seed_ratio'  =>4,
+			'max_peer'    =>30,
+			'max_dl'      =>30,
+			'max_up'      =>20
+		}
+		# FIXME : ne fonctionne pas comme escompté ....
+		# pp mafreebox.download.config_set(config)
+
 
 	when "unix"
 		mafreebox.unix.ls('/Disque dur/').each { |e| printf("- %s\n", e['name'])} ; puts("\n")

@@ -78,6 +78,7 @@ module Mafreebox
 require 'net/http'
 require 'json'
 require 'yaml'
+require 'nokogiri'  # http://ruby.bastardsbook.com/chapters/html-parsing/ ; http://nokogiri.org/tutorials
 
 =begin
 
@@ -125,7 +126,7 @@ class Core
 
     end
 
-	def post(cmd, args, headers={})
+	def http_post(cmd, args, headers={})
 
 		uri = self.uri(cmd)
 
@@ -153,6 +154,31 @@ class Core
 
 		http.request(request)
 	end
+
+	def http_get(cmd, headers={})
+
+		uri = self.uri(cmd)
+
+		headers['Cookie']           = @config[:cookie] if(@config[:cookie] != nil)
+		headers['x-fbx-csrf-token'] = @config[:token]  if(@config[:token]  != nil)
+
+		request = Net::HTTP::Get.new(uri.to_s)
+
+		# set headers into request
+		headers.each{ |h|
+			request[h[0]] = h[1]
+		}
+
+		http = Net::HTTP.new(uri.host, uri.port)
+		# http.set_debug_output $stdout #useful to see the raw messages going over the wire
+		http.read_timeout = 15
+		http.open_timeout = 15
+
+		http.request(request)
+	end
+	
+	alias post http_post
+	alias get http_get
 
 	def json_exec(cmd, args)
 		self.exec(cmd, args)
@@ -250,6 +276,10 @@ class Module
 	def post(cmd, args)
 		@fb.post(cmd, args)
 	end
+
+	def http_get(cmd)
+		@fb.http_get(cmd)
+	end
 end
 
 =begin
@@ -275,8 +305,7 @@ modules list :
 	- Storage : Systeme de stockage : Gestion du disque dur interne et des disques externe connectés au NAS.
 	* System : fonctions système de la Freebox,
 	* User : Utilisateurs : Permet de modifier les paramétres utilisateur du boîtier NAS.
-	- WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
-
+	* WiFi : Fonctions permettant de paramétrer le réseau sans-fil.
 
  System : 
  
@@ -289,12 +318,7 @@ modules list :
  - non documentées :
  - system.rotation_set(): 
  
- a faire : récupérer les températures depuis code HTML, page "/settings.php?page=misc_system"
- 
-       <li>Température CPUm : <span style="color: black;">XX °C</span></li>
-       <li>Température CPUb : <span style="color: black;">XX °C</span></li>
-       <li>Température SW : <span style="color: black;">XX °C</span></li>
-       <li>Vitesse ventilateur : <span>XXXX RPM</span></li>
+ a faire :
 
 =end
 
@@ -307,12 +331,14 @@ class System < Module
 
 	def get_all
 		return {
-			'uptime'     => self.uptime_get,
-			'serial'     => self.serial_get,
-			'mac'        => self.mac_address_get,
-			'fw-release' => self.fw_release_get,
+			:uptime     => self.uptime_get,
+			:serial     => self.serial_get,
+			:mac        => self.mac_address_get,
+			:fwrelease  => self.fw_release_get,
+			:infos      => self.infos,
 		}
 	end
+	alias get get_all
 
 	def uptime_get
 		self.exec('uptime_get')
@@ -326,12 +352,40 @@ class System < Module
 		self.exec('serial_get')
 	end
 
-	def reboot(timeout)
+	def reboot(timeout=3)
 		self.exec('reboot', [timeout])
 	end
 
 	def fw_release_get
 		self.exec('fw_release_get')
+	end
+
+=begin
+	 récupérer les températures depuis code HTML, page "/settings.php?page=misc_system"
+ 
+       <li>Température CPUm : <span style="color: black;">XX °C</span></li>
+       <li>Température CPUb : <span style="color: black;">XX °C</span></li>
+       <li>Température SW : <span style="color: black;">XX °C</span></li>
+       <li>Vitesse ventilateur : <span>XXXX RPM</span></li>
+=end
+
+	def infos
+		body = self.http_get('settings.php?page=misc_system').body
+		page = Nokogiri::HTML(body)
+		
+		infos = {}
+
+		# xpath : /html/body/div[4]/div[3]/div.bloc/ul/li/span | html body div#fluid div#col_1.setting_block div.bloc ul li span
+		page.css('html body div#fluid div#col_1.setting_block div.bloc ul li').each{ |li|
+
+			if(m = li.inner_text.match(/Temp.*rature (.+?) : (\d+)/))
+				infos[m[1]] = m[2]
+			elsif(m = li.inner_text.match(/Vitesse ventilateur : (\d+) RPM/))
+				infos['ventilateur'] = m[1]
+			end
+		}
+		
+		return infos
 	end
 end
 
@@ -429,7 +483,7 @@ types :
 	dl-type: Protocole utilisé par la tâche.
 	- torrent 	Téléchargement d'un fichier torrent.
 	- http 	Téléchargement d'un lien ftp.
-	- ftp 	TÃéléchargement d'un lien ftp.
+	- ftp 	Téléchargement d'un lien ftp.
 
 	dl-status :
 	- queued 	Tâche dans la file d'attente (en attente de téléchargement, uniquement http/ftp).
@@ -503,10 +557,28 @@ class Download < Module
 		self.exec('config_set', config)
 	end
 
+	alias get config_get
+	alias set config_set
+
 	def http_add(name, url)
 		self.exec('http_add', [name, url])
 	end
 
+	def start(type, id)
+		self.exec('start',[type, id])
+	end
+
+	def stop(type, id)
+		self.exec('stop',[type, id])
+	end
+
+	def get(type, id)
+		self.exec('get',[type, id])
+	end
+
+	def remove(type, id)
+		self.exec('remove',[type, id])
+	end
 end
 
 =begin
@@ -603,8 +675,8 @@ class Conn < Module
 	def wan_adblock_get
 		self.exec('wan_adblock_get')
 	end
-	
-	def wan_ping_set(bool)
+
+	def wan_adblock_set(bool)
 		self.exec('wan_adblock_set', bool)
 	end
 end
@@ -615,7 +687,7 @@ end
 Phone : Téléphonie : Contrôle de la ligne téléphonique analogique et de la base DECT.
 
 todo : 
-- exploiter le journal des appels au format HTML et l'exporter dans un format utilisable (xml, csv, ...) /done.
+- exploiter le journal des appels au format HTML et l'exporter dans un format utilisable (xml, csv, ...) / fait pour php.
 
 methods :
 
@@ -641,11 +713,11 @@ data types :
 	- error 	Une erreur empêche la ligne de fonctionner (serveurs injoignable, mauvaise configuration, ...)
 
 	dect-params:
-	- enabled] => bool
-	- nemo_mode] => 
-	- ring_on_off] => bool
-	- eco_mode] => 
-	- pin] => 1234 (code pin)
+	- enabled => bool
+	- nemo_mode => 
+	- ring_on_off => bool
+	- eco_mode => 
+	- pin => 1234 (code pin)
 	- registration => 
 	- ring_type => int
 
@@ -810,6 +882,10 @@ methods :
     lcd.brightness_get():int (pourcentage)
     lcd.brightness_set(value:int)
 
+methods extra (hors API native):
+	Ldc:blink(count, delay) : fait clignoter l'afficheur LCD
+	Ldc:blink_code(id, count, delay) : fait clignoter l'afficheur LCD par séquence de façon à identifier un code d'erreur
+
 =end
 
 class Lcd < Module
@@ -832,8 +908,8 @@ class Lcd < Module
 	# - delay : temps en mili-secondes du cyle. 
 	# - le cycle est coupé en 3 intervalles égaux,
 	# - l'afficheur est en luminosité basse 1/3 du temps et en luminosité forte 2/3 du temps.
-	def blink(count=60, delay=500.0, ratio=2)
-		# l'état initial est concervé afin de remettre en fin de procédure.
+	def blink(count=60, delay=500.0)
+		# l'état initial est conservé afin de remettre en fin de procédure.
 		state = self.get
 		delay = delay / 1000 / 3
 		i=count
@@ -844,6 +920,15 @@ class Lcd < Module
 			sleep(delay*2)
 			i -= 1			
 		end
+		self.set(state)
+	end
+
+	def blink_code(id, count, delay)
+		state = self.get
+		delay = delay / 1000 / 3
+		self.set(0)
+		# ...
+		sleep(1)
 		self.set(state)
 	end
 
@@ -891,6 +976,10 @@ class Share < Module
 
 	alias get get_config
 	alias set set_config
+	
+	# tous les autres modules disposent de config_[set|get].
+	alias config_get get_config
+	alias config_set set_config
 
 end
 
