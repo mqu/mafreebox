@@ -1,5 +1,4 @@
 #!/usr/bin/ruby
-
 # coding: UTF-8
 
 =begin
@@ -21,8 +20,10 @@ sur celles qui sont présentes ici.
 Dépendances :
  - json
  - net/http
-
- - sur debian-like : apt-get install ruby1.9.1 ruby-httpclient ruby-json
+ - nokogiri,
+ - yaml
+ 
+ - sur debian-like : apt-get install ruby1.9.1 ruby-httpclient ruby-json ruby-nokogiri
 
 
 Exemple d'utilisation :
@@ -75,10 +76,23 @@ Exemple d'utilisation :
 
 module Mafreebox
 
-require 'net/http'
-require 'json'
-require 'yaml'
-require 'nokogiri'  # http://ruby.bastardsbook.com/chapters/html-parsing/ ; http://nokogiri.org/tutorials
+begin
+	require 'net/http'
+	require 'json'
+	require 'yaml'
+	require 'nokogiri'  # http://ruby.bastardsbook.com/chapters/html-parsing/ ; http://nokogiri.org/tutorials
+rescue ScriptError
+	puts "Cette application a besoin des librairies suivantes pour fonctionner :
+ - net/http
+ - json,
+ - yaml,
+ - nokogiri
+elles sont disponibles soit dans les depots de votre distribution (apt-cache search <nom-librairie>) ou dans les dépots Ruby via la commande gem.
+Sur debian et ubuntu : sudo apt-get install ruby1.9.1 ruby-nokogiri ruby-json ruby-httpclient
+
+"
+	exit(-1)
+end
 
 =begin
 
