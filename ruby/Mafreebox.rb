@@ -782,6 +782,47 @@ class Phone < Module
 		self.exec('dect_delete', id)
 	end
 
+	def logs
+	
+		# on récupère la listes des appels passés et recus, au format HTML
+		body = self.http_get('/settings.php?page=phone_calls').body
+		
+		# le parser Nokogiri permettra de réaliser les extractions
+		# après sélection des sections HTML (méthode css)
+		page = Nokogiri::HTML(body)
+		
+		# liste des éléments retournés
+		list = {
+			:recus => [],  # liste des appels reçus
+			:passes => []  # liste des appels passés
+			}
+
+		# appels recus
+		page.css('//table[1].bloc/tr').each{ |li|
+			e = li.css('td')
+
+			list[:recus] << {
+				:heure => e[0].inner_text,  # heure d'appel : format Mardi 5 février à 15:29:40
+				:nom   => e[1].inner_text,  # nom ou numéro 
+				:tel   => e[2].inner_text,  # numéro de l'appelant
+				:duree => e[3].inner_text,  # duré de l'appel ou "appel manqué"
+			}
+		}
+
+		# appels passés
+		page.css('//table[2].bloc/tr').each{ |li|
+			e = li.css('td')
+
+			list[:passes] << {
+				:heure => e[0].inner_text,  # heure d'appel : format Mardi 5 février à 15:29:40
+				:nom   => e[1].inner_text,  # nom ou numéro 
+				:tel   => e[2].inner_text,  # numéro de l'appelant
+				:duree => e[3].inner_text,  # duré de l'appel ou "appel manqué"
+			}
+		}
+
+		return list
+	end
 end
 
 =begin

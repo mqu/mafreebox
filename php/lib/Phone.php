@@ -123,14 +123,16 @@ class Phone {
 			'received' => array()
 		);
 		/* XPATH 
-		 * appels : /html/body/div[4]/div[3]/table - class bloc  -> //table.bloc/tr (matche un table de class "bloc" / chaque ligne "<tr>"
-		 * recus :  /html/body/div[4]/div[3]/table[2] - class bloc
+		 * appels passés : //table[2].bloc/tr
+		 * recus :  //table[1].bloc/tr
 		 */
 		# $tr = $html->find("/html/body/div[4]/div[3]/table[2]/tr"); # recus
-		$tr = $html->find("//table.bloc/tr");  # les appels
+		# FIXME : les appels passés et recus sont mélangés et renvoyés dans $list[received|calls] sans distinction
+		# le code Ruby avec les mêmes expressions est fonctionnel.
+		$tr = $html->find("//table[1].bloc/tr");  # les appels
 		foreach($tr as $hr){
 			$td = $hr->find('td');
-			$list['calls'][] = array(
+			$list['received'][] = array(
 				'date'     => $td[0]->innertext,
 				'name'     => $td[1]->innertext,
 				'number'   => $td[2]->innertext,
@@ -141,7 +143,7 @@ class Phone {
 		$tr = $html->find("//table[2].bloc/tr");  # les appels
 		foreach($tr as $hr){
 			$td = $hr->find('td');
-			$list['received'][] = array(
+			$list['calls'][] = array(
 				'date'     => $td[0]->innertext,
 				'name'     => $td[1]->innertext,
 				'number'   => $td[2]->innertext,

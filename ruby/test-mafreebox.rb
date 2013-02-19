@@ -62,7 +62,7 @@ case ARGV[0]
 		pp mafreebox.conn.get
 		
 	when "phone"
-		pp mafreebox.phone.get
+		pp mafreebox.phone.logs
 
 	when "ipv6"
 		pp mafreebox.ipv6.get
