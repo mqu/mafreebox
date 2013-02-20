@@ -94,6 +94,8 @@ Sur debian et ubuntu : sudo apt-get install ruby1.9.1 ruby-nokogiri ruby-json ru
 	exit(-1)
 end
 
+require 'lib-extra/unidecoder.rb'
+
 =begin
 
 class tree :
@@ -794,6 +796,32 @@ class Phone < Module
 
 	def dect_delete(id)
 		self.exec('dect_delete', id)
+	end
+
+	def date_parse(date)
+
+		# suppress characters accents (à->a, è->e) and lowercase
+		date = date.to_ascii.downcase
+
+		week_days = %w(lundi mardi mercredi jeudi vendredi samedi dimanche)
+		months    = %w(janvier fevrier mars avril mai juin juillet aout septembre octobre novembre decembre)
+		year = Date.today.year
+	
+		# expr : /(week-name) (day-number) (month) (time)/
+		expr = /(#{week_days.join('|')})\s+(\d+)\s+(#{months.join('|')})\s+a\s+(.*)/i
+		e = date.scan(expr)
+	
+		raise("parse error : unsupported date format or format error : '#{date}'") if(e.length == 0)
+		e = e[0]
+
+		d = DateTime.parse(sprintf("%.4d/%.2d/%.2s %s UTC+1", Date.today.year, months.index(e[2])+1, e[1], e[3]))
+	
+		return {
+			'fr'      => date,
+			'en'      => Time.parse(d.to_s).to_s,
+			'time_t'  => d.to_i
+		}
+
 	end
 
 	def logs
