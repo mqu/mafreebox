@@ -94,7 +94,7 @@ Sur debian et ubuntu : sudo apt-get install ruby1.9.1 ruby-nokogiri ruby-json ru
 	exit(-1)
 end
 
-require 'lib-extra/unidecoder.rb'
+# require '../lib-extra/unidecoder.rb'
 
 =begin
 
@@ -986,7 +986,7 @@ class Lcd < Module
 		self.exec('brightness_set', percent)
 	end
 
-	# fait clingoter l'afficheur LCD :
+	# fait clignoter l'afficheur LCD :
 	# - count : nombre d'occurrences du clignotement,
 	# - delay : temps en mili-secondes du cyle. 
 	# - le cycle est coupé en 3 intervalles égaux,
@@ -1006,12 +1006,24 @@ class Lcd < Module
 		self.set(state)
 	end
 
-	def blink_code(id, count, delay)
+	# fait clignoter l'afficheur LCD par séquence de façon à identifier un code d'erreur
+	# id = code d'erreur = nombre de clignotement,
+	# repeat : combien de fois on répète le clignement
+	# delay : vitesse de clognement.
+	def blink_code(id, repeat=30, delay=500)
 		state = self.get
-		delay = delay / 1000 / 3
+		delay = delay * 1.0 / 1000 / 2
 		self.set(0)
-		# ...
-		sleep(1)
+		sleep(2)
+		(1..repeat).each{ |r|
+			(1..id).each { |i|
+				self.set(100)
+				sleep(delay)
+				self.set(0)
+				sleep(delay)
+			}
+			sleep(2)
+		}
 		self.set(state)
 	end
 

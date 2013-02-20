@@ -71,7 +71,8 @@ case ARGV[0]
 		pp mafreebox.igd.get
 
 	when "blink"
-		mafreebox.lcd.blink
+		# mafreebox.lcd.blink
+		mafreebox.lcd.blink_code(5)
 
 	when "lcd"
 		if ARGV.count == 2
