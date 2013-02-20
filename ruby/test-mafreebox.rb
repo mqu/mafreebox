@@ -67,6 +67,9 @@ case ARGV[0]
 	when "ipv6"
 		pp mafreebox.ipv6.get
 
+	when "extra"
+		pp mafreebox.extra.legal
+
 	when "igd"
 		pp mafreebox.igd.get
 

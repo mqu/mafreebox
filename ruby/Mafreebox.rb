@@ -140,6 +140,8 @@ class Core
 		# @modules[:fw]     = Fw.new(self)
 		# @modules[:storage]= Storage.new(self)
 
+		@modules[:extra]     = Extra.new(self)
+
     end
 
 	def http_post(cmd, args, headers={})
@@ -1321,6 +1323,56 @@ end
      "band"=>"g"}}}
 
 =end
+
+
+class Extra < Module
+
+	def initialize fb
+        super
+        @name = 'extra'
+	end
+
+	# retourne la liste des logiciels utilisés dans le firmware de la freebox.
+	def legal
+		# on récupère la listes des appels passés et recus, au format HTML
+		body = self.http_get('/settings.php?page=misc_legal').body
+		# le parser Nokogiri permettra de réaliser les extractions
+		# après sélection des sections HTML (méthode css)
+		page = Nokogiri::HTML(body)
+		
+		list = []
+
+		# xpath : /html/body/div[4]/div[3]/table/tbody/tr
+		# css : html body div#fluid div#col_1.scroll table tbody tr
+		page.css('//div#col_1 tr').each { |tr|
+			#tr.css('td').each { |td|
+				#printf("- td : %s\n", self._trim(td.inner_text))
+			#}
+			#puts("-----\n\n")
+			
+			l = []
+			tr.css('td').each { |td|
+				l << self._trim(td.inner_text)
+			}
+			if l[0] != nil
+				list << {
+					:name    => l[0],
+					:version => l[1],
+					:licence => l[2],
+					:url     => l[3]
+				}
+			end
+		}
+		
+		return list
+	end
+
+	def _trim(str)
+		return str.gsub(/[\s\n\r\t]+/, '')
+		# return str.squeeze(" \t\n\r")
+	end
+end
+
 
 end # module Mafreebox
 
