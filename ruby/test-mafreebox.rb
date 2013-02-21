@@ -68,7 +68,7 @@ case ARGV[0]
 		pp mafreebox.ipv6.get
 
 	when "extra"
-		pp mafreebox.extra.legal
+		puts mafreebox.export_csv(mafreebox.extra.legal)
 
 	when "igd"
 		pp mafreebox.igd.get

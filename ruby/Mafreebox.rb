@@ -230,6 +230,29 @@ class Core
 		URI.parse(@config[:url] + cmd)
 	end
 
+
+	def export_csv(rows, header=[])
+		require 'csv'
+
+		out = CSV.generate do |csv|
+	  
+			if rows[0].is_a? Hash 
+				if header.length == 0
+					csv << rows[0].keys
+				else
+					csv << header 
+				end
+				rows.each do |rec|
+						csv << rec.values
+				end
+			else
+				csv << header if not header.length==0
+				rows.map {|row| csv << row}
+			end
+		end
+		return out
+	end
+
 end
 
 class Mafreebox < Core
