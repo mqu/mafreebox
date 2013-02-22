@@ -823,32 +823,6 @@ class Phone < Module
 		self.exec('dect_delete', id)
 	end
 
-	def date_parse(date)
-
-		# suppress characters accents (à->a, è->e) and lowercase
-		date = date.to_ascii.downcase
-
-		week_days = %w(lundi mardi mercredi jeudi vendredi samedi dimanche)
-		months    = %w(janvier fevrier mars avril mai juin juillet aout septembre octobre novembre decembre)
-		year = Date.today.year
-	
-		# expr : /(week-name) (day-number) (month) (time)/
-		expr = /(#{week_days.join('|')})\s+(\d+)\s+(#{months.join('|')})\s+a\s+(.*)/i
-		e = date.scan(expr)
-	
-		raise("parse error : unsupported date format or format error : '#{date}'") if(e.length == 0)
-		e = e[0]
-
-		d = DateTime.parse(sprintf("%.4d/%.2d/%.2s %s UTC+1", Date.today.year, months.index(e[2])+1, e[1], e[3]))
-	
-		return {
-			'fr'      => date,
-			'en'      => Time.parse(d.to_s).to_s,
-			'time_t'  => d.to_i
-		}
-
-	end
-
 	def logs
 	
 		# on récupère la listes des appels passés et recus, au format HTML
@@ -890,6 +864,38 @@ class Phone < Module
 
 		return list
 	end
+
+	# permet de décoder la chaine "durée de l'appel" codée en Francais  self.logs[][:heure]
+	# retourne un hash contenant : 
+	# - :fr => l'heure initiale (francais)
+	# - :en => l'heure décodée en anglais
+	# - : time_t : l'heure au format time_t (nb seconde écoulées depuis une date de référence =~ 1/01/1970).
+	def date_parse(date)
+
+		# suppress characters accents (à->a, è->e) and lowercase
+		date = date.to_ascii.downcase
+
+		week_days = %w(lundi mardi mercredi jeudi vendredi samedi dimanche)
+		months    = %w(janvier fevrier mars avril mai juin juillet aout septembre octobre novembre decembre)
+		year = Date.today.year
+	
+		# expr : /(week-name) (day-number) (month) (time)/
+		expr = /(#{week_days.join('|')})\s+(\d+)\s+(#{months.join('|')})\s+a\s+(.*)/i
+		e = date.scan(expr)
+	
+		raise("parse error : unsupported date format or format error : '#{date}'") if(e.length == 0)
+		e = e[0]
+
+		d = DateTime.parse(sprintf("%.4d/%.2d/%.2s %s UTC+1", Date.today.year, months.index(e[2])+1, e[1], e[3]))
+	
+		return {
+			'fr'      => date,
+			'en'      => Time.parse(d.to_s).to_s,
+			'time_t'  => d.to_i
+		}
+
+	end
+
 end
 
 =begin
@@ -1016,10 +1022,10 @@ class Lcd < Module
 	# - delay : temps en mili-secondes du cyle. 
 	# - le cycle est coupé en 3 intervalles égaux,
 	# - l'afficheur est en luminosité basse 1/3 du temps et en luminosité forte 2/3 du temps.
-	def blink(count=60, delay=500.0)
+	def blink(count=60, delay=500)
 		# l'état initial est conservé afin de remettre en fin de procédure.
 		state = self.get
-		delay = delay / 1000 / 3
+		delay = 1.0 * delay / 1000 / 3
 		i=count
 		while (i>0)
 			self.set(0)
@@ -1359,6 +1365,7 @@ class Extra < Module
 	def legal
 		# on récupère la listes des appels passés et recus, au format HTML
 		body = self.http_get('/settings.php?page=misc_legal').body
+
 		# le parser Nokogiri permettra de réaliser les extractions
 		# après sélection des sections HTML (méthode css)
 		page = Nokogiri::HTML(body)
@@ -1368,11 +1375,7 @@ class Extra < Module
 		# xpath : /html/body/div[4]/div[3]/table/tbody/tr
 		# css : html body div#fluid div#col_1.scroll table tbody tr
 		page.css('//div#col_1 tr').each { |tr|
-			#tr.css('td').each { |td|
-				#printf("- td : %s\n", self._trim(td.inner_text))
-			#}
-			#puts("-----\n\n")
-			
+
 			l = []
 			tr.css('td').each { |td|
 				l << self._trim(td.inner_text)
