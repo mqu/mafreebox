@@ -68,6 +68,8 @@ case ARGV[0]
 		pp mafreebox.ipv6.get
 
 	when "extra"
+		version = mafreebox.system.fw_release_get
+		puts "# firmware : #{version}"
 		puts mafreebox.export_csv(mafreebox.extra.legal)
 
 	when "igd"
