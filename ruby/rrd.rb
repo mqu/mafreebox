@@ -54,21 +54,26 @@ opts = {
 period = ARGV[0]
 time = Time.now
 d=Date.today
-direction=:download # :download, :upload
 
 case period
 	when "weekly"
-		img = mafreebox.rrd.get :weekly, direction, opts
-		file = sprintf('var/week/%d-%d-down.png', d.cwyear, d.cweek)
-		file_write(file, img)
+		[:down, :up].each do |direction|
+			img = mafreebox.rrd.get :weekly, direction, opts
+			file = sprintf('var/week/%s-%d-%d.png', direction.to_s, d.cwyear, d.cweek)
+			file_write(file, img)
+		end
 	when "daily"
-		img = mafreebox.rrd.get :daily, direction, opts
-		file = sprintf('var/day/%d-%d-down.png', d.cwyear, d.yday)
-		file_write(file, img)
+		[:down, :up].each do |direction|
+			img = mafreebox.rrd.get :daily, direction, opts
+			file = sprintf('var/day/%s-%d-%d.png', direction.to_s, d.cwyear, d.yday)
+			file_write(file, img)
+		end
 	when "hourly"
-		img = mafreebox.rrd.get :hourly, direction, opts
-		file = sprintf('var/hour/%d.%d.%d-%d-down.png', d.cwyear, Time.now.month, Time.now.day, DateTime.now.hour)
-		file_write(file, img)
+		[:down, :up].each do |direction|
+			img = mafreebox.rrd.get :hourly, direction, opts
+			file = sprintf('var/hour/%s-%d.%d.%d-%d.png', direction.to_s, d.cwyear, Time.now.month, Time.now.day, DateTime.now.hour)
+			file_write(file, img)
+		end
 end
 
 

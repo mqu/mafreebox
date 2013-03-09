@@ -1450,14 +1450,30 @@ class Rrd < Module
         }
 	end
 
+	# récupère un graph RRD selon les paramêtres suivants :
+	# - period : [:hour|:day|:week|:hourly|:weekly|:daily]
+	# - direction : [:up|:down] - upload ou download
+	# - opt peut contenir :
+	#   - type : [:rate|:snr]
+	#   - width 
+	#   - height
+	# - les valeurs par défaut sont dans la structure  def_opts 
 	def get period, direction, opts={}
-		opts[:width] = 1000
-		opts[:height] = 200
+
+		# default options.
+		def_opts = {
+			:width  => 1000,
+			:height => 200,
+			:type => :rate      # :rate|:snr
+			# :direction => :down # :down, :up
+		}
+		opts = def_opts.merge opts
+
 		cgi='rrd.cgi'
 		db='fbxconnman'
 		dir='down'
 		extra=sprintf('&w=%d&h=%d&color1=00ff00&color2=ff0000', opts[:width],opts[:height])
-		url = sprintf('%s?db=%s&type=rate&dir=%s&%s&period=%s', cgi, db, dir, extra, @periods[period])
+		url = sprintf('%s?db=%s&type=rate&dir=%s&%s&period=%s', cgi, db, dir.to_s, extra, @periods[period])
 		body = self.http_get(url).body
 	end
 end

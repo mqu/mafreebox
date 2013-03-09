@@ -189,7 +189,7 @@ case ARGV[0]
 			# :height => 200,
 			:type => :rate  # :rate|:snr
 		}
-		direction=:download # :download, :upload
+		direction=:down # :down, :up
 		img = mafreebox.rrd.get :weekly, direction, opts
 		file_write('var/week-down.png', img)
 end
