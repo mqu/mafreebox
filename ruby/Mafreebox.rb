@@ -1471,9 +1471,8 @@ class Rrd < Module
 
 		cgi='rrd.cgi'
 		db='fbxconnman'
-		dir='down'
 		extra=sprintf('&w=%d&h=%d&color1=00ff00&color2=ff0000', opts[:width],opts[:height])
-		url = sprintf('%s?db=%s&type=rate&dir=%s&%s&period=%s', cgi, db, dir.to_s, extra, @periods[period])
+		url = sprintf('%s?db=%s&type=rate&dir=%s&%s&period=%s', cgi, db, direction.to_s, extra, @periods[period])
 		body = self.http_get(url).body
 	end
 end

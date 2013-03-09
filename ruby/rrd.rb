@@ -46,7 +46,7 @@ begin
 end
 
 opts = {
-	:width  => 1000,
+	:width  => 800,
 	:height => 200,
 	:type => :rate  # :rate|:snr
 }
