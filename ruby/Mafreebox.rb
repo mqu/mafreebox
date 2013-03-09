@@ -88,7 +88,9 @@ rescue ScriptError
  - yaml,
  - nokogiri
 elles sont disponibles soit dans les depots de votre distribution (apt-cache search <nom-librairie>) ou dans les dépots Ruby via la commande gem.
-Sur debian et ubuntu : sudo apt-get install ruby1.9.1 ruby-nokogiri ruby-json ruby-httpclient
+Sur debian et ubuntu : 
+	sudo apt-get install ruby1.9.1 ruby-nokogiri ruby-json ruby-httpclient (wheezy)
+	sudo apt-get install ruby1.9.1 libnokogiri-ruby ruby-json libhttpclient-ruby1.9.1 (sqeeze)
 
 "
 	exit(-1)
@@ -141,6 +143,7 @@ class Core
 		# @modules[:storage]= Storage.new(self)
 
 		@modules[:extra]     = Extra.new(self)
+		@modules[:rrd]       = Rrd.new(self)
 
     end
 
@@ -1399,6 +1402,65 @@ class Extra < Module
 	end
 end
 
+=begin
+
+RRD : extraction des graph RRD (connexion ADSL, signal/bruit, download)
+
+ 1) Internet / ADSL / statistiques / connexion ADSL : debit (up, down) et signal sur bruit (snr)
+ http://{$url}/rrd.cgi?db=fbxdsl&type=snr&w=650&h=90&color1=00ff00&color2=ff0000&period=hour
+ http://{$url}/rrd.cgi?db=fbxdsl&type=rate&dir=down&w=650&h=90&color1=00ff00&color2=ff0000&period=hour
+ http://{$url}/rrd.cgi?db=fbxdsl&type=rate&dir=up&w=650&h=90&color1=00ff00&color2=ff0000&period=hour
+ 
+ db=fbxdsl
+ period = {hour|day|week}
+ type={rate|snr}
+ dir={down|up}
+ w=650
+ h=90
+ color1=00ff00&color2=ff0000
+ 
+ 
+ 2) Internet / Statut : mesure débit utilisé (up, down)
+ 
+ http://{$url}/rrd.cgi?db=fbxconnman&dir=up&period=day&w=650&h=90&color1=00ff00&color2=ff0000&ts=1359638606236
+ http://{$url}/rrd.cgi?db=fbxconnman&dir=down&period=day&w=650&h=90&color1=00ff00&color2=ff0000&ts=1359638611251
+
+=end
+
+class Rrd < Module
+
+	def initialize fb
+        super
+        @name = 'rrd'
+        @periods = {
+			:weekly  => 'week',
+			:daily   => 'day',
+			:hourly  => 'hour',
+			:week  => 'week',
+			:day   => 'day',
+			:hour  => 'hour'
+        }
+        @directions = {
+			:down  => 'down',
+			:up    => 'up'
+        }
+        @types = {
+			:rate  => 'rate',
+			:snr   => 'snr'
+        }
+	end
+
+	def get period, direction, opts={}
+		opts[:width] = 1000
+		opts[:height] = 200
+		cgi='rrd.cgi'
+		db='fbxconnman'
+		dir='down'
+		extra=sprintf('&w=%d&h=%d&color1=00ff00&color2=ff0000', opts[:width],opts[:height])
+		url = sprintf('%s?db=%s&type=rate&dir=%s&%s&period=%s', cgi, db, dir, extra, @periods[period])
+		body = self.http_get(url).body
+	end
+end
 
 end # module Mafreebox
 

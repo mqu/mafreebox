@@ -12,6 +12,9 @@ def usage
 	puts "- liste des modules supportés : system, download, fs, unix\n"
 end
 
+def file_write _file, data
+	File.open(_file,'w') {|file| file.puts data}
+end
 
 cnf= ENV['HOME'] + '/.config/mafreebox.yml'
 
@@ -179,6 +182,16 @@ case ARGV[0]
 		# p mafreebox.fs.mkdir('/Disque dur/test/foobar')
 		# p mafreebox.fs.move('/Disque dur/test/foobar', '/Disque dur/test/tutu')
 
+	when "rrd"
+	
+		opts = {
+			# :width  => 1000,
+			# :height => 200,
+			:type => :rate  # :rate|:snr
+		}
+		direction=:download # :download, :upload
+		img = mafreebox.rrd.get :weekly, direction, opts
+		file_write('var/week-down.png', img)
 end
 
 
