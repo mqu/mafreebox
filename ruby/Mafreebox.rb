@@ -96,7 +96,6 @@ Sur debian et ubuntu :
 	exit(-1)
 end
 
-# require '../lib-extra/unidecoder.rb'
 
 =begin
 
@@ -169,7 +168,7 @@ class Core
 		end
 
 		http = Net::HTTP.new(uri.host, uri.port)
-		# http.set_debug_output $stdout #useful to see the raw messages going over the wire
+		http.set_debug_output $stdout #useful to see the raw messages going over the wire
 		http.read_timeout = 15
 		http.open_timeout = 15
 
@@ -218,6 +217,16 @@ class Core
 
 		cgi = cmd.split('.')[0] + '.cgi'
 		JSON::parse(self.post(cgi, args.to_json, headers).body)['result']
+	end
+
+	def exec_xml(cmd, args=[])
+		args['csrf_token'] =  self.token
+
+		headers = {
+			'X-Requested-With' => 'XMLHttpRequest',
+		}
+
+		return self.post('wifi.cgi', args, headers)
 	end
 
 	# automatic call of modules :
@@ -294,6 +303,14 @@ class Mafreebox < Core
 
 		return true
 	end
+	
+	def token
+		return @config[:token]
+	end
+	
+	def cookie
+		@config[:cookie]
+	end
 end
 
 # fonctions communes à tous les modules
@@ -316,9 +333,13 @@ class Module
 		@fb.exec(cmd, args)
 	end
 
+	def exec_xml(cmd, args=[])
+		@fb.exec_xml(cmd, args)
+	end
+
 	# un POST par délégation sur la classe Freebox.
-	def post(cmd, args)
-		@fb.post(cmd, args)
+	def post(cmd, args, headers)
+		@fb.post(cmd, args, headers)
 	end
 
 	def http_get(cmd)
@@ -847,9 +868,10 @@ class Phone < Module
 
 			list[:recus] << {
 				:heure => e[0].inner_text,  # heure d'appel : format Mardi 5 février à 15:29:40
+				:date  => self.date_parse(e[0].inner_text),  # date + heure décodé
 				:nom   => e[1].inner_text,  # nom ou numéro 
 				:tel   => e[2].inner_text,  # numéro de l'appelant
-				:duree => e[3].inner_text,  # duré de l'appel ou "appel manqué"
+				:duree => self.parse_duration(e[3].inner_text)  # duré de l'appel ou "appel manqué"
 			}
 		}
 
@@ -872,33 +894,60 @@ class Phone < Module
 	# retourne un hash contenant : 
 	# - :fr => l'heure initiale (francais)
 	# - :en => l'heure décodée en anglais
-	# - : time_t : l'heure au format time_t (nb seconde écoulées depuis une date de référence =~ 1/01/1970).
+	# - :time_t : l'heure au format time_t (nb seconde écoulées depuis une date de référence =~ 1/01/1970).
+	# - :date : un objet de type DateTime.
 	def date_parse(date)
 
+		require 'time'
 		# suppress characters accents (à->a, è->e) and lowercase
-		date = date.to_ascii.downcase
+		date = date.downcase
+		# date = date.to_ascii.downcase
 
 		week_days = %w(lundi mardi mercredi jeudi vendredi samedi dimanche)
-		months    = %w(janvier fevrier mars avril mai juin juillet aout septembre octobre novembre decembre)
+		months    = %w(janvier février mars avril mai juin juillet aout septembre octobre novembre décembre)
 		year = Date.today.year
 	
 		# expr : /(week-name) (day-number) (month) (time)/
-		expr = /(#{week_days.join('|')})\s+(\d+)\s+(#{months.join('|')})\s+a\s+(.*)/i
+		expr = /(#{week_days.join('|')})\s+(\d+)\s+(#{months.join('|')})\s+[aà]\s+(.*)/i
 		e = date.scan(expr)
 	
 		raise("parse error : unsupported date format or format error : '#{date}'") if(e.length == 0)
 		e = e[0]
 
 		d = DateTime.parse(sprintf("%.4d/%.2d/%.2s %s UTC+1", Date.today.year, months.index(e[2])+1, e[1], e[3]))
-	
+		
 		return {
-			'fr'      => date,
-			'en'      => Time.parse(d.to_s).to_s,
-			'time_t'  => d.to_i
+			:fr       => date,
+			:en       => Time.parse(d.to_s).to_s,
+			:time_t   => d.to_time.to_i,
+			:date     => d
 		}
 
 	end
 
+	# parse duration string in the form in french :
+	# 00:01:01 -> 1 minute 1 seconde
+	# 00:00:22 -> 22 secondes
+	# 00:00:00 -> appel manqué
+	# 
+	def parse_duration duration
+
+		return 0 if duration == "appel manqué"
+
+		h,m,s=0,0,0
+
+		h = match(duration, /(\d+)\s+heures*/)
+		m = match(duration, /(\d+)\s+minutes*/)
+		s = match(duration, /(\d+)\s+secondes*/)
+		
+		return h*3600+m*60+s
+	end
+
+	def match str, expr
+		m = str.scan(expr)
+		return 0 if m.size==0
+		return m[0][0].to_i
+	end
 end
 
 =begin
@@ -1194,13 +1243,12 @@ bss_cfg_name: perso|freewifi
 filter_type=whitelist|blacklist
 mac-address=adresse MAC de la carte réseau
 
-commandes : (information extraite avec firebug)
+commandes : (information extraite avec firebug) ; attention, les methodes sont des actions XML (XMLHttpRequest).
 0 - éléments communs :
 	csrf_token=TOKEN
 
 1 - Wifi / configuration / valider
 	method=wifi.ap_params_set
-
 	enabled=on|off
 	channel=1..13
 	ht_mode=disabled|20|40_upper|40_lower (Mode 802.11n)
@@ -1257,6 +1305,7 @@ class Wifi < Module
 	def initialize fb
         super
         @name = 'wifi'
+        @config=nil
 	end
 
 	def status_get
@@ -1267,8 +1316,34 @@ class Wifi < Module
 		self.exec('config_get')
 	end
 	
-	def config_set(cnf)
-		self.exec('config_set', cnf)
+	def get_param(name)
+		@config=self.get if(@config==nil)
+		case name
+			when 'enabled'
+				return @config[:config]['ap_params']['enabled']
+			when 'channel'
+				return @config[:config]['ap_params']['channel']
+			when 'ht_mode'
+				return @config[:config]['ap_params']['ht']['ht_mode']
+			when 'band'
+				return @config[:config]['ap_params']['band']
+			else
+				raise "error : unknown parameter #{name}"
+		end
+	end
+	def method_missing sym, *args
+		case sym
+			when :enabled?
+				return self.get_param('enabled')=='true'
+			when :enable
+				return self.set_active(true)
+			when :disable
+				return self.set_active(false)
+			when :channel=
+				return self.set_channel(*args)
+			else
+				return self.get_param(sym.to_s)
+		end
 	end
 
 	def get
@@ -1282,18 +1357,48 @@ class Wifi < Module
 		self.exec('config_get')
 	end
 
-	# FIXME : non fonctionnel ; à terminer.
-	def set_active(status)
-		case status
-			when false
-			when 'off'
-				status = 'off'
-			when true
-			when 'on'
-				status = 'on'
+	# enabled=on|off
+	# channel=1..13
+	# ht_mode=disabled|20|40_upper|40_lower (Mode 802.11n)
+	def ap_param_set cnf
+		# current conf
+		_cnf = { 
+			'enabled' => self.enabled,
+			'channel' => self.channel,
+			'ht_mode' => self.ht_mode,
+			'method'  => 'wifi.ap_params_set'
+		}
+
+		# override values from cnf hash
+		cnf.each do |k,v|
+			_cnf[k] = v
 		end
-		cnf = { 'enabled' => status}
-		self.exec('app_params_set', cnf)
+
+		pp _cnf
+
+		# reset cached config
+		@config=nil
+		return self.exec_xml('wifi.cgi', _cnf)
+
+	end
+
+	# active ou désactive la fonction wifi sur la freebox
+	def set_active(status)
+		cnf = {}
+		case status
+			when false, 'off'
+				cnf['enabled'] = 'off'
+			when true, 'on'
+				cnf['enabled'] = 'on'
+			else
+				raise "error : unknow status (#{status})"
+		end
+		return ap_param_set(cnf)
+	end
+	
+	# canal d'emission.
+	def set_channel chan
+		return ap_param_set({'channel' => chan})
 	end
 end
 

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 # coding: utf-8
 
-# author : Marc Quinton, février 2013, licence : http://fr.wikipedia.org/wiki/WTFPL
+# author : Marc Quinton, février-avril 2013, licence : http://fr.wikipedia.org/wiki/WTFPL
 
 require 'pp'
 require './Mafreebox.rb'
@@ -99,22 +99,21 @@ case ARGV[0]
 		pp mafreebox.lan.get
 		
 	when "wifi"
-		pp mafreebox.wifi.get
-
+		# pp mafreebox.wifi.get
+		
 		if(ARGV[1] == 'set-active')
-			pp ARGV
 			case ARGV[2]
-				when true
-				when "true"
-				when "on"
+				when true, "true", "on"
 					puts "set-active = on"
-					mafreebox.wifi.set_active(true)
-				when false
-				when "false"
-				when "off"
+					pp mafreebox.wifi.set_active(true)
+				when false, "false", "off"
 					puts "set-active = off"
-					mafreebox.wifi.set_active(false)
+					pp mafreebox.wifi.set_active(false)
 			end
+			
+			# pp mafreebox.wifi.get
+		elsif(ARGV[1] == 'channel')
+			pp mafreebox.wifi.channel=ARGV[2]
 		else
 			pp mafreebox.wifi.get
 		end
