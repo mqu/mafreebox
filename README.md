@@ -4,7 +4,8 @@ Mafreebox
 **mafreebox - interface d'administration de la Freebox via requetes JSON (php, ruby).**
 
 Mafreebox est une interface de programmation (API) qui permet d'accéder aux fonctions d'administration de la Freebox Révolution (V6).
-L'API est actuellement disponible en langage PHP. Prochainement, sera développé une API Ruby.
+
+L'API est actuellement disponible en langage PHP et Ruby. Depuis la mise en place de FreeboxOS, l'interface de programmation (API) à changé. L'API V1.0 va disparaitre progressivement au profit de la V2.0. Je ne pense pas réécrire la version PHP.
 
 Cette API est organisée en classe de façon modulaire et couvre (couvrira) les aspects suivants :
 
