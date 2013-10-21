@@ -157,7 +157,7 @@ class Mafreebox {
 		);
 		$res = $curl->post($this->uri('login.php'), $args);
 
-		if($res->headers()['Status-Code'] != 302)  # 302 Moved Temporarily
+		if($res->headers()['Status-Code'] != 200)  # 302 Moved Temporarily
 			throw new Exception ('connexion error');
 
 		$cookies = array(
