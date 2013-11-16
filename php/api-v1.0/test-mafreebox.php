@@ -127,7 +127,7 @@ EOF;
 
 	case 'day': 
 	case 'daily': 
-		rrd_dayly($freebox);
+		rrd_daily($freebox);
 		break;
 
 	case 'week': 
