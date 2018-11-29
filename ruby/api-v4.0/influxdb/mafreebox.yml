@@ -1,0 +1,6 @@
+# votre configuration pour l'accès à l'interface "Mafreebox" (http://mafreebox.free.fr/)
+
+# depuis l'arrivee de FreeboxOS (firmare >=V2.0)
+:api: http://mafreebox.freebox.fr/api/v4
+:app_token: XXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxXXXXXXXXxxxxxxxx
+:app_track_id: 0
