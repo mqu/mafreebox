@@ -3,7 +3,7 @@
 
 =begin
 
-implement l'API V2 de la Freebox (Freebox OS) : 
+implement l'API V4 de la Freebox (Freebox OS) : 
  - http://dev.freebox.fr/sdk/os/ ; http://dev.freebox.fr/sdk/os/genindex/
  - http://mafreebox.freebox.fr/doc/
  
