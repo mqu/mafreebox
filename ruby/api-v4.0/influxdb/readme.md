@@ -22,6 +22,7 @@ cp input-exec-mafreebox.conf /etc/telegraf/telegraf.d
 # la base influx, via telegraf
 mkdir -p /etc/telegraf/telegraf.d/mafreebox
 cp freebox-influx.bash  influxdb.rb  input-exec-mafreebox.conf  mafreebox.yml /etc/telegraf/telegraf.d/mafreebox
+chmod +x /etc/telegraf/telegraf.d/mafreebox/freebox-influx.bash
 ```
 
 adapter sur le fichier mafreebox.yml en concordance avec les infos de connexion de votre API Freebox.
